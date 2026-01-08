@@ -235,3 +235,51 @@ python3 -u scripts/make_weighted_histogram.py -w latest_combined_datacards_Jan07
 
 This replaces data with Asimov by default. To show the real data add the option --unblind
 Note this may take a while to run as sampling is used to get the systematic uncertainty band
+
+### Scan of mu vs alpha
+
+Use a directory with all the required datacards inside it, and run T2W with the float mu physics model option
+
+```
+combineTool.py -m 125 -M T2W -P CombineHarvester.Combine_HtautauCP.CPMixtureDecays:CPMixtureDecays -i run2run_muVsalpha/ --PO float_mutautau -o ws_muVsalpha.root --parallel 8
+```
+
+Run as batch jobs (navigate to the directory if you want the logs etc to end up there)
+```
+combineTool.py -m 125 -M MultiDimFit --setParameters muV=1,alpha=0,muggH=1,mutautau=1 --redefineSignalPOIs alpha,mutautau --points 2000 -d ws_muVsalpha.root --algo grid -t -1 --there -n .muVsalpha --alignEdges 1 --cminDefaultMinimizerStrategy=0 --cminDefaultMinimizerTolerance=0.1 --cminFallbackAlgo Minuit2,Migrad,0:1 --cminFallbackAlgo Minuit2,Migrad,0:2 --cminFallbackAlgo Minuit2,Migrad,0:4 --cminFallbackAlgo Minuit2,Migrad,0:10 --job-mode condor --task-name condor-run2run3-muVsalpha --sub-opts='+MaxRuntime=10799' --split-points 5
+```
+
+then combine:
+
+```
+hadd -v 1 -f higgsCombine.muVsalpha.MultiDimFit.mH125 higgsCombine.muVsalpha.POINTS*.MultiDimFit.mH125.root
+```
+
+and make the plot:
+
+```
+python3 scripts/plot_2D_scans.py --file run2run_muVsalpha/higgsCombine.muVsalpha.MultiDimFit.mH125  --mutautau
+```
+
+### Scan of kappa tilde vs tilde
+
+
+Use a directory with all the required datacards inside it, and run T2W with the kappas physics model option
+
+```
+combineTool.py -m 125 -M T2W -P CombineHarvester.Combine_HtautauCP.CPMixtureDecays:CPMixtureDecays -i run2run_muVsalpha/ --PO float_mutautau -o ws_muVsalpha.root --parallel 8
+```
+
+navigate to dir
+```
+combineTool.py -m 125 -M MultiDimFit --setParameters muV=1,alpha=0,muggH=1,mutautau=1 --redefineSignalPOIs alpha,mutautau --points 2000 -d ws_muVsalpha.root --algo grid -t -1 --there -n .muVsalpha --alignEdges 1 --cminDefaultMinimizerStrategy=0 --cminDefaultMinimizerTolerance=0.1 --cminFallbackAlgo Minuit2,Migrad,0:1 --cminFallbackAlgo Minuit2,Migrad,0:2 --cminFallbackAlgo Minuit2,Migrad,0:4 --cminFallbackAlgo Minuit2,Migrad,0:10 --job-mode condor --task-name condor-run2run3-muVsalpha --sub-opts='+MaxRuntime=10799' --split-points 5
+```
+
+
+```
+hadd -v 1 -f higgsCombine.muVsalpha.MultiDimFit.mH125 higgsCombine.muVsalpha.POINTS*.MultiDimFit.mH125.root
+```
+
+```
+python3 scripts/plot_2D_scans.py --file run2run3_2Dkappas/higgsCombine.kappas.MultiDimFit.mH125.root --kappas
+```
