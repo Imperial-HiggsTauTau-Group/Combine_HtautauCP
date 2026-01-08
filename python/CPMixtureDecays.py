@@ -6,11 +6,14 @@ class CPMixtureDecays(PhysicsModel):
     def __init__(self):
         PhysicsModel.__init__(self)
         self.do_kappas = False
+        self.float_mutautau = False
 
     def setPhysicsOptions(self, physOptions):
         for po in physOptions:
             if po.startswith("do_kappas"):
                 self.do_kappas = True
+            if po.startswith("float_mutautau"):
+                self.float_mutautau = True
 
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
@@ -22,12 +25,17 @@ class CPMixtureDecays(PhysicsModel):
                 'pi': np.pi
         }
  
-        if not self.do_kappas: 
+        if not self.do_kappas: # standard alpha fit
           self.modelBuilder.doVar('alpha[0,-90,90]')
           poiNames.append('alpha')
-          self.modelBuilder.doVar('mutautau[1]')
-          self.modelBuilder.doVar('muV[1,0,10]')
-          self.modelBuilder.doVar('muggH[1,0,10]')
+          if self.float_mutautau: # float mutautau instead of muV and muggH (ie for 2D scans)
+            self.modelBuilder.doVar('mutautau[1,0,2]')
+            self.modelBuilder.doVar('muV[1]')
+            self.modelBuilder.doVar('muggH[1]')
+          else:
+            self.modelBuilder.doVar('mutautau[1]')
+            self.modelBuilder.doVar('muV[1,0,10]')
+            self.modelBuilder.doVar('muggH[1,0,10]')
 
           self.modelBuilder.doSet('POI', ','.join(poiNames))
 
@@ -38,7 +46,7 @@ class CPMixtureDecays(PhysicsModel):
           self.modelBuilder.factory_('expr::ps_scaling("@1*@1 - @0*@1", a1, a3)')
           self.modelBuilder.factory_('expr::mm_scaling("2*@0*@1", a1, a3)')
 
-        else: 
+        else:  # 2 D Kappa scans
           self.modelBuilder.doVar('kappaH[1,-2,2]')
           self.modelBuilder.doVar('kappaA[0,-2,2]')
           poiNames.append('kappaH')
