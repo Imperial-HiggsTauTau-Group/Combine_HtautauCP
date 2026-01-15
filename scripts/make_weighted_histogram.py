@@ -1,30 +1,9 @@
-# bins to phase shift:
-
-# Run-2: 
-    # tt: 5,6,9,11
-    # lt: all (3,4,5,6)
-
-# Run-3
-    # tt: 5,6,9,11
-    # lt: 3,4,5
-
-
-# number of bins in each histogram
-
-#10 bins: 
-    #tt: 3,4,5,7
-    #lt: 3,5
-
-#4 bins:
-    #tt 6,8,9,10,11
-
-# 8 bins:
-    #lt: 4,6 -> rebin these to 4 bins!
-
 import CombineHarvester.CombineTools.ch as ch
 import argparse
 import ROOT
 import math
+
+ROOT.gROOT.SetBatch(True)
 
 samples=500
 
@@ -97,7 +76,24 @@ if args.fitresult:
 
 bin_set = cb.bin_set()
 
-def remap_and_set_shape(x, wt_mapping, nxbins, phase_shift, proto1, proto2, proto3):
+def apply_phase_shift(hist, nxbins, bin):
+    half = nxbins // 2
+
+    histout = hist.Clone()
+
+    for b in range(1, hist.GetNbinsX()+1):
+
+        new_bin=b+half - (b+half - nxbins*((b-1) // nxbins) > nxbins)*nxbins
+
+        print(b, new_bin)
+
+        histout.SetBinContent(new_bin, hist.GetBinContent(b))
+        histout.SetBinError(new_bin, hist.GetBinError(b))
+
+
+    return histout
+
+def remap_and_set_shape(x, wt_mapping, nxbins, phase_shift, proto1, proto2, proto3, obs=False):
 
     old_h = x.shape()
 
@@ -156,15 +152,7 @@ for cat in bin_set:
 
     sel_bin = cb.cp().bin([cat])
 
-    # if not unblinding then set the observations to the Asimov dataset
-    if not args.unblind:
-
-        sel_bin.ForEachObs(
-            lambda obs: obs.set_shape(cb.cp().bin([cat]).backgrounds().GetShape(),True)
-        )
-
     bkg = sel_bin.cp().backgrounds().GetShape()
-
 
     print(f'Number of bins in selected for {cat} category: {bkg.GetNbinsX()}')
 
@@ -177,6 +165,28 @@ for cat in bin_set:
     par.set_val(0.)
     sm_sig = sel_bin.cp().signals().process(['ggH_sm_prod_sm_htt','ggH_sm_htt','qqH_sm_htt','WH_sm_htt','ZH_sm_htt']).GetShape()
 
+    if args.unblind: 
+        data = sel_bin.cp().GetObservedShape()
+    else: 
+        data = sel_bin.cp().GetShape()
+        for b in range(1, data.GetNbinsX()+1):
+            data.SetBinError(b, math.sqrt(data.GetBinContent(b)))
+
+    # apply phase shift if needed
+    if phase_flip:
+        sm_sig_orig = sm_sig.Clone()
+        print('Applying phase flip for category ', cat)
+        sm_sig = apply_phase_shift(sm_sig, nxbins, cat)
+        ps_sig = apply_phase_shift(ps_sig, nxbins, cat)
+        data = apply_phase_shift(data, nxbins, cat)
+        bkg = apply_phase_shift(bkg, nxbins, cat)
+
+        #for testing make a plot of the sm_sig after phase shift
+        c1 = ROOT.TCanvas("c1", "c1", 800,600)
+        sm_sig.Draw("hist")
+        sm_sig_orig.SetLineColor(ROOT.kRed)
+        sm_sig_orig.Draw("hist same")
+        c1.Print(f"test_plots/sm_sig_phaseshift_{cat}.pdf")
 
     wt_mapping = {}
     s_sb=0
@@ -198,25 +208,9 @@ for cat in bin_set:
             A_ave = A_tot/nxbins
         wt_mapping[b] = s_sb*A_ave
 
-    sel_bin.ForEachObs(
-        lambda x: remap_and_set_shape(x, wt_mapping, nxbins, phase_flip, proto1, proto2, proto3)
-    )
+##make a list of all the categories with 10 bins
+#best_cats = [cat for cat in bin_set if cat in bins_map and bins_map[cat]==10]
 
-    sel_bin.ForEachProc(
-        lambda x: remap_and_set_shape(x, wt_mapping, nxbins, phase_flip, proto1, proto2, proto3)
-    )
+##make a list of the categories with or 8 bins i.e not = 10
+#worst_cats = [cat for cat in bin_set if cat in bins_map and bins_map[cat]!=10]
 
-#make a list of all the categories with 10 bins
-best_cats = [cat for cat in bin_set if cat in bins_map and bins_map[cat]==10]
-
-#make a list of the categories with or 8 bins i.e not = 10
-worst_cats = [cat for cat in bin_set if cat in bins_map and bins_map[cat]!=10]
-
-datacardtxt  = "%s/$TAG/$BIN.txt" % (args.output_folder)
-datacardroot = "%s/$TAG/common/$BIN_input.root" % (args.output_folder)
-writer = ch.CardWriter(datacardtxt,datacardroot)
-writer.SetVerbosity(1)
-writer.SetWildcardMasses([ ])
-
-writer.WriteCards("plot_best", cb.cp().bin(best_cats))
-writer.WriteCards("plot_worst", cb.cp().bin(worst_cats))
