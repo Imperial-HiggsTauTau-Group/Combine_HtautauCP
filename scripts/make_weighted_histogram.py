@@ -85,13 +85,38 @@ def apply_phase_shift(hist, nxbins, bin):
 
         new_bin=b+half - (b+half - nxbins*((b-1) // nxbins) > nxbins)*nxbins
 
-        print(b, new_bin)
-
         histout.SetBinContent(new_bin, hist.GetBinContent(b))
         histout.SetBinError(new_bin, hist.GetBinError(b))
 
+    return histout
+
+def process_hist(hist, wt_mapping, nxbins, phase_shift):
+    hist_mod = hist.Clone()
+    if phase_shift:
+        hist_mod = apply_phase_shift(hist_mod, nxbins, cat)
+    if nxbins != 10: hist_mod.Rebin(2)
+    
+    histout = ROOT.TH1F("histout", "histout", nxbins, 0,360)
+
+    # now combine bins according to weights
+    for b in range(1, hist_mod.GetNbinsX()+1):
+        new_bin = (b - 1) % nxbins + 1
+
+        wt = wt_mapping[b]
+
+        histout.SetBinContent(
+            new_bin,
+            histout.GetBinContent(new_bin) + wt * hist_mod.GetBinContent(b)
+        )
+
+        histout.SetBinError(
+            new_bin,
+            math.sqrt(pow(histout.GetBinError(new_bin),2) + pow(wt*hist_mod.GetBinError(b),2))
+        )
 
     return histout
+    
+    
 
 def remap_and_set_shape(x, wt_mapping, nxbins, phase_shift, proto1, proto2, proto3, obs=False):
 
@@ -164,6 +189,10 @@ for cat in bin_set:
     # now get SM by setting alpha to 0 degrees
     par.set_val(0.)
     sm_sig = sel_bin.cp().signals().process(['ggH_sm_prod_sm_htt','ggH_sm_htt','qqH_sm_htt','WH_sm_htt','ZH_sm_htt']).GetShape()
+    par.set_val(45.)
+    mm_sig = sel_bin.cp().signals().process(['ggH_mm_prod_sm_htt','ggH_mm_htt','qqH_mm_htt','WH_mm_htt','ZH_mm_htt']).GetShape()
+    
+    #TODO: add max-mix as well to test this one too
 
     if args.unblind: 
         data = sel_bin.cp().GetObservedShape()
@@ -171,22 +200,6 @@ for cat in bin_set:
         data = sel_bin.cp().GetShape()
         for b in range(1, data.GetNbinsX()+1):
             data.SetBinError(b, math.sqrt(data.GetBinContent(b)))
-
-    # apply phase shift if needed
-    if phase_flip:
-        sm_sig_orig = sm_sig.Clone()
-        print('Applying phase flip for category ', cat)
-        sm_sig = apply_phase_shift(sm_sig, nxbins, cat)
-        ps_sig = apply_phase_shift(ps_sig, nxbins, cat)
-        data = apply_phase_shift(data, nxbins, cat)
-        bkg = apply_phase_shift(bkg, nxbins, cat)
-
-        #for testing make a plot of the sm_sig after phase shift
-        c1 = ROOT.TCanvas("c1", "c1", 800,600)
-        sm_sig.Draw("hist")
-        sm_sig_orig.SetLineColor(ROOT.kRed)
-        sm_sig_orig.Draw("hist same")
-        c1.Print(f"test_plots/sm_sig_phaseshift_{cat}.pdf")
 
     wt_mapping = {}
     s_sb=0
@@ -207,6 +220,17 @@ for cat in bin_set:
                 
             A_ave = A_tot/nxbins
         wt_mapping[b] = s_sb*A_ave
+
+    mm_sig = process_hist(mm_sig, wt_mapping, nxbins, phase_flip)
+    sm_sig = process_hist(sm_sig, wt_mapping, nxbins, phase_flip)
+    ps_sig = process_hist(ps_sig, wt_mapping, nxbins, phase_flip)
+    data = process_hist(data, wt_mapping, nxbins, phase_flip)
+    bkg = process_hist(bkg, wt_mapping, nxbins, phase_flip)
+
+    # make a plot to test this works
+    canv = ROOT.TCanvas("canv", "canv", 800,600)
+    mm_sig.Draw("HIST")
+    canv.SaveAs(f'test_plots/test_weights_mm_sig_{cat}.pdf')
 
 ##make a list of all the categories with 10 bins
 #best_cats = [cat for cat in bin_set if cat in bins_map and bins_map[cat]==10]
