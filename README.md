@@ -214,3 +214,15 @@ combineTool.py -m 125 -M MultiDimFit --setParameters muV=1,alpha=0,muggH=1,mutau
 ```
 
 then just hadd them, and run the 1D plotting code as normal
+
+### Make weighted phi-CP plot
+
+Note current instructions are for expected plot. Replacing data with azimov. Need to update options after unblinding
+
+First run a ML fit:
+
+```
+combineTool.py -m 125 -M MultiDimFit --setParameters muV=1,alpha=0,muggH=1,mutautau=1 --setParameterRanges alpha=-90,90  --redefineSignalPOIs alpha  -d latest_combined_datacards_Jan07/ws.root -t -1 -n .alpha.BestFit --algo none --saveFitResult --there --cminDefaultMinimizerStrategy=0 --cminDefaultMinimizerTolerance=0.1
+```
+
+This will produce 'multidimfit.alpha.BestFit.root'
