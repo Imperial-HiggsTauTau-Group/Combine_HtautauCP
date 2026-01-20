@@ -155,7 +155,7 @@ for b in bin_set:
     histograms[b] = {'data': None, 'sm_sig': None, 'ps_sig': None, 'mm_sig': None, 'bkg': None, 'bkg_variations': []}
 
 wt_mapping = {} # will store weights for rescaling histograms based on expected sensitivity
-for samp in range(samples): # note samp = 0 is nominal
+for samp in range(samples+1): # note samp = 0 is nominal
 
     if samp % 50 ==0:
         print(f"Processing sample {samp} / {samples}")
@@ -281,10 +281,13 @@ def CombineCats(cats, histograms):
            for j, var in enumerate(histograms[cat]['bkg_variations']):
                 bkg_variations[j].Add(var) 
 
-        bkg = ZeroErrors(bkg) # should be 0 already but just to make absolutely sure
-        for i in range(1, bkg_variations[0].GetNbinsX()+1):
-            err = abs(bkg_variations[0].GetBinContent(i)-bkg.GetBinContent(i))
-            bkg.SetBinError(i, err*err + bkg.GetBinError(i))
+    bkg = ZeroErrors(bkg) # should be 0 already but just to make absolutely sure
+    for i in range(1, bkg.GetNbinsX()+1):
+        err_sq = 0.
+        for bkg_var in bkg_variations:
+            err_sq += (bkg_var.GetBinContent(i)-bkg.GetBinContent(i))**2
+        err = (err_sq/len(bkg_variations))**.5 # divide by number of samples to get RMS then sqrt to get error
+        bkg.SetBinError(i, err)
 
     # do bkg subraction here:
     data = Subtract(data, bkg)
