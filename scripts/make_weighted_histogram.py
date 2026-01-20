@@ -142,7 +142,7 @@ def ZeroErrors(src):
     src.SetBinError(x, 0.)
   return src    
 
-samples = 2
+samples = 500
 
 # get the initial values of all the parameters - note while we call randomizePars we do not use these values in p_vec at this point
 rands = res.randomizePars()
@@ -211,8 +211,7 @@ for samp in range(samples): # note samp = 0 is nominal
                     i_sig = (i_sm+i_ps)/2
                     s_vs_b_weight = i_sig/(i_sig+i_bkg)
                     if args.alt_weights:
-                        #s_vs_b_weight = math.log(1+i_sig/i_bkg) # ATLAS style
-                        s_vs_b_weight = i_sig/math.sqrt(i_bkg+i_sig)
+                        s_vs_b_weight = math.log(1+i_sig/i_bkg) # ATLAS style
                     A_tot=0
                     for i in range(b, b+nxbins):
                         b_sm = sm_sig.GetBinContent(i)
@@ -303,7 +302,7 @@ bkg_best, sig_sm_best, sig_ps_best, sig_mm_best, data_best = CombineCats(best_ca
 bkg_worst, sig_sm_worst, sig_ps_worst, sig_mm_worst, data_worst = CombineCats(worst_cats, histograms)
 
 
-fout = ROOT.TFile('weighted_phiCP_histograms.root', 'RECREATE')
+fout = ROOT.TFile(f'{output_dir}/weighted_phiCP_histograms.root', 'RECREATE')
 # make a directory for best categories
 fout.mkdir('best_categories')
 fout.cd('best_categories')
@@ -447,7 +446,7 @@ def propoganda_plot_phicp(sm,ps,mm, bkg,data,plot_name,extra_label='Preliminary'
     data.GetYaxis().SetTitleOffset(0.8)
     data.GetXaxis().SetTitleSize(0.05)
     if args.alt_weights: 
-        data.GetYaxis().SetTitle('A#kern[0.1]{S}/#sqrt{S+B} weighted events / bin')
+        data.GetYaxis().SetTitle('A#kern[0.1]{ln(1+S/B)} weighted events / bin')
     else: 
         data.GetYaxis().SetTitle('A#kern[0.1]{S}/(S+B) weighted events / bin')
     data.GetXaxis().SetTitle('#phi_{#it{CP}} (degrees)')

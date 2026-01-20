@@ -226,3 +226,12 @@ combineTool.py -m 125 -M MultiDimFit --setParameters muV=1,alpha=0,muggH=1,mutau
 ```
 
 This will produce 'multidimfit.alpha.BestFit.root'
+
+The weighted plot is then produced using:
+
+```
+python3 -u scripts/make_weighted_histogram.py -w latest_combined_datacards_Jan07/ws.root -f latest_combined_datacards_Jan07/multidimfit.alpha.BestFit.root:fit_mdf
+```
+
+This replaces data with Asimov by default. To show the real data add the option --unblind
+Note this may take a while to run as sampling is used to get the systematic uncertainty band
