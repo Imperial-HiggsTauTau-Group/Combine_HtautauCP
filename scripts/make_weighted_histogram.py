@@ -516,7 +516,10 @@ def propoganda_plot_phicp(sm,ps,mm, bkg,data,plot_name,extra_label='Preliminary'
     bkg.Draw("e2same")
     data.Draw("E same")
 
-    DrawCMSLogoCustom(pads[0], 'CMS', extra_label, 11, 0.05, -0.07, 0.2, 2.0, '', 1.0)
+    relExtraDX = 2.0
+    if len(extra_label) > 11:
+        relExtraDX+=0.2*(len(extra_label)-11)
+    DrawCMSLogoCustom(pads[0], 'CMS', extra_label, 11, 0.05, -0.07, 0.2, relExtraDX, '', 1.0)
     plot.DrawTitle(pads[0], '200 fb^{-1} (13 and 13.6 TeV)', 3)
 
     #Setup legend
