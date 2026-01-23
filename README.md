@@ -282,4 +282,3 @@ hadd -v 1 -f higgsCombine.muVsalpha.MultiDimFit.mH125 higgsCombine.muVsalpha.POI
 
 ```
 python3 scripts/plot_2D_scans.py --file run2run3_2Dkappas/higgsCombine.kappas.MultiDimFit.mH125.root --kappas
-```
