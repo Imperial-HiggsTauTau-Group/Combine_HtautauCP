@@ -98,13 +98,11 @@ def main(args):
     for i, ch_ in enumerate(chan_it):
         ri = parameters.find(ch_)
         p = points.GetN()
-        print('!!!!', i, points.GetN())
         points.SetPoint(p, ri.getVal(), i+0.5)
         points.SetPointError(p, -ri.getAsymErrorLo(), ri.getAsymErrorHi(), 0, 0)
         print("Alternate fit: ", ch_, ri.getVal())
 
         if ri.getVal()<0:
-            print('!!!!!!')
             points.SetPoint(p+1, ri.getVal()+180, i+0.5)
             points.SetPointError(p+1, -ri.getAsymErrorLo(), ri.getAsymErrorHi(), 0, 0)
         elif ri.getVal()>0:

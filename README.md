@@ -329,3 +329,26 @@ for b in 1 2 3 4; do python3 scripts/postfitPlotDMMigrations.py -b htt_mt_${b}_1
 
 for b in 1 2 3 4; do python3 scripts/postfitPlotDMMigrations.py -b htt_mt_${b}_13p6TeV --norm_bins --dir dm_migrations/prefit -i shapes_prefit.root; done
 ```
+
+### Run Channel compatability checks
+
+Run the observed fit:
+```
+combineTool.py -m 125 -M ChannelCompatibilityCheck --setParameters muV=1,alpha=0,muggH=1,mutautau=1 --setParameterRanges alpha=-90,90:muV=-5,10:muggH=-5,10,r=1,1  --redefineSignalPOIs alpha  -d outputs/Feb20_Unblinding/cmb/ws.root --there -n .alpha.ChannelCompatibilityCheck --saveFitResult --group htt_tt --group htt_mt --group htt_et --cminDefaultMinimizerStrategy=0 --cminDefaultMinimizerTolerance=0.1
+```
+
+Run the toys:
+```
+combineTool.py -m 125 -M ChannelCompatibilityCheck --setParameters muV=-1.303,alpha=36.486,muggH=1.856,mutautau=1 --setParameterRanges alpha=-180,180:muV=-5,10:muggH=-5,10 --redefineSignalPOIs alpha  -d outputs/Feb20_Unblinding/cmb/ws.root --there -n .alpha.V6 --toysFrequentist --saveFitResult --group htt_tt --group htt_mt --group htt_et --cminDefaultMinimizerStrategy=0 --cminDefaultMinimizerTolerance=0.1 --job-mode condor --task-name condor-chan-compat_toys_Feb20 --sub-opts='+MaxRuntime=10800' -t 1 -s 0:500:1
+
+Collect outputs into a json
+
+```
+combineTool.py -M CollectGoodnessOfFit --input outputs/Feb20_Unblinding/cmb/higgsCombine.alpha.ChannelCompatibilityCheck.ChannelCompatibilityCheck.mH125.root outputs/Feb20_Unblinding/cmb/higgsCombine.alpha.V6.ChannelCompatibilityCheck.mH125.*.root  --there -o channel_compat.json
+```
+
+make the plot:
+
+```
+python3 scripts/plot_ccc_alpha.py outputs/Feb20_Unblinding/cmb/higgsCombine.alpha.ChannelCompatibilityCheck.ChannelCompatibilityCheck.mH125.root --toy-json channel_compat.json
+```
