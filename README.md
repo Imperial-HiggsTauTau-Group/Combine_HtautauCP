@@ -352,3 +352,50 @@ make the plot:
 ```
 python3 scripts/plot_ccc_alpha.py outputs/Feb20_Unblinding/cmb/higgsCombine.alpha.ChannelCompatibilityCheck.ChannelCompatibilityCheck.mH125.root --toy-json channel_compat.json
 ```
+
+### Check compatability with SM
+
+run observed fit
+
+```
+combineTool.py -m 125 -M MultiDimFit --setParameters muV=1,alpha=0,muggH=1,mutautau=1 --setParameterRanges alpha=-180,180:muV=-5,10:muggH=-5,10  --redefineSignalPOIs alpha,muV,muggH  -d outputs/Feb20_Unblinding/cmb/ws.root --there -n .alpha.fixed.OBS --cminDefaultMinimizerStrategy=0 --cminDefaultMinimizerTolerance=0.1 --cminFallbackAlgo Minuit2,Migrad,0:1 --cminFallbackAlgo Minuit2,Migrad,0:2 --cminFallbackAlgo Minuit2,Migrad,0:4 --cminFallbackAlgo Minuit2,Migrad,0:10 --saveNLL --algo fixed --fixedPointPOIs alpha=0,muV=1,muggH=1
+```
+
+You can estimate approximate p-value wrt SM as follows.
+Open the ROOT file and read of teh value of the deltaLL:
+```
+limit->Scan("deltaNLL","","",1,1)
+```
+
+Then we can use this to compute the p-value using Wilks theorem:
+```
+from scipy.stats import chi2
+q = 2*3.0829844 # where 3.0829844 is the deltaNLL from the ROOT file
+p = chi2.sf(q, df=3) # note number of DOF = 3 in this case as we do 3 parameter fit
+# p = 0.1038
+```
+
+Or estimate using toys. To use toys first need to run some toy fits using:
+
+```
+combineTool.py -m 125 -M MultiDimFit --setParameters muV=1,alpha=0,muggH=1,mutautau=1 --setParameterRanges alpha=-180,180:muV=-5,10:muggH=-5,10  --redefineSignalPOIs alpha,muV,muggH  -d outputs/Feb20_Unblinding/cmb/ws.root --there -n .alpha.fixed.Toys --cminDefaultMinimizerStrategy=0 --cminDefaultMinimizerTolerance=0.1 --cminFallbackAlgo Minuit2,Migrad,0:1 --cminFallbackAlgo Minuit2,Migrad,0:2 --cminFallbackAlgo Minuit2,Migrad,0:4 --cminFallbackAlgo Minuit2,Migrad,0:10 --saveNLL --algo fixed --fixedPointPOIs alpha=0,muV=1,muggH=1 -t 5 -s 0:99:1 --job-mode condor --task-name condor-chan-muVcheck  --sub-opts='+MaxRuntime=10800'
+```
+
+Hadd the outputs using:
+
+```
+hadd -f outputs/Feb20_Unblinding/cmb/higgsCombine.alpha.fixed.Toys.MultiDimFit.mH125.root outputs/Feb20_Unblinding/cmb/higgsCombine.alpha.fixed.Toys.MultiDimFit.mH125.*.root
+```
+
+Then you can compute the p-value by seeing how often the toys have a larger deltaNLL than the observed one:
+
+```
+root [8] limit->GetEntries("quantileExpected>-0.5")
+(long long) 964
+root [9] limit->GetEntries("quantileExpected>-0.5&&deltaNLL>3.0829844")
+(long long) 124
+root [10] 124./964
+(double) 0.12863071
+```
+
+
