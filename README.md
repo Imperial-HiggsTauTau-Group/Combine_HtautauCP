@@ -222,8 +222,9 @@ Note current instructions are for expected plot. Replacing data with azimov. Nee
 First run a ML fit:
 
 ```
-combineTool.py -m 125 -M MultiDimFit --setParameters muV=1,alpha=0,muggH=1,mutautau=1 --setParameterRanges alpha=-90,90  --redefineSignalPOIs alpha  -d latest_combined_datacards_Jan07/ws.root -t -1 -n .alpha.BestFit --algo none --saveFitResult --there --cminDefaultMinimizerStrategy=0 --cminDefaultMinimizerTolerance=0.1
+combineTool.py -m 125 -M MultiDimFit --setParameters muV=1,alpha=0,muggH=1,mutautau=1 --setParameterRanges alpha=-90,90  --redefineSignalPOIs alpha --freezeParameters lumi_scale -d Run2Run3_cmb_ws_Feb24/ws.root -n .alpha.BestFit --algo none --saveFitResult --there --robustFit 1 --robustHesse 1
 ```
+Which can take a while due to robus options
 
 This will produce 'multidimfit.alpha.BestFit.root'
 

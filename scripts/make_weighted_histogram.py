@@ -4,8 +4,6 @@ import ROOT
 import math
 import os
 
-output_dir = 'weighted_phi_CP_plots'
-os.makedirs(output_dir, exist_ok=True)
 
 ROOT.gROOT.SetBatch(True)
 
@@ -37,7 +35,6 @@ for year in [2016,2017,2018]:
         bins_map[f'htt_mt_{year}_{i}_13TeV'] = 4
         bins_map[f'htt_et_{year}_{i}_13TeV'] = 4
 
-
 # negative phase flip categories have the phase shift applies in the opposite direction
 negative_phase_flip_categories = []
 negative_phase_flip_categories.append('htt_tt_6_13p6TeV')
@@ -58,6 +55,9 @@ for i in [3,4,6]:
     phase_flip_categories.append(f'htt_mt_{i}_13p6TeV')
     phase_flip_categories.append(f'htt_et_{i}_13p6TeV')
 
+# tt phase flips are the same
+# mt and et now flipped 5 as well in Run-2 (rho-a1) 
+
 parser = argparse.ArgumentParser(description='Post-fit plot script for Htautau CP analysis')
 parser.add_argument('--fitresult', '-f', help= 'Path to a RooFitResult, only needed for postfit', default=None)
 parser.add_argument('--workspace', '-w', help= 'The input workspace-containing file [REQUIRED]')
@@ -66,6 +66,9 @@ parser.add_argument('--unblind', action='store_true', help='Unblind the data, if
 parser.add_argument('--alt_weights', action='store_true', help='Use alternative weights based on A*ln(1+S/B) instead of A*S/(S+B)')
 parser.add_argument('--extra_plots', action='store_true', help='Make extra plots for each category separately, and for Run-2 only')
 args = parser.parse_args()
+
+output_dir = args.output_folder
+os.makedirs(output_dir, exist_ok=True)
 
 cb = ch.CombineHarvester()
 infile = ROOT.TFile(args.workspace)
@@ -81,6 +84,13 @@ proto3 = ROOT.TH1F("proto3", "proto3", 8, 0,360)
 # if fit result is given, update the parameters to postfit values
 f_fit = ROOT.TFile(args.fitresult.split(':')[0])
 res = f_fit.Get(args.fitresult.split(':')[1])
+
+# check if the rate parameters are negative and if so print a warning as this likely indicates a problem with the fit result
+for p in res.floatParsFinal():
+    if 'muV' in p.GetName() or 'muggH' in p.GetName() or 'mutautau' in p.GetName():
+        if p.getVal() < 0:
+            print(f"Warning: Parameter {p.GetName()} has a negative value of {p.getVal()}, this may cause an issue with the plotting!")
+
 cb.UpdateParameters(res)
 
 bin_set = cb.bin_set()
@@ -310,25 +320,6 @@ bkg_worst, sig_sm_worst, sig_ps_worst, sig_mm_worst, data_worst = CombineCats(wo
 
 
 fout = ROOT.TFile(f'{output_dir}/weighted_phiCP_histograms.root', 'RECREATE')
-# make a directory for best categories
-fout.mkdir('best_categories')
-fout.cd('best_categories')
-bkg_best.Write('bkg')
-sig_sm_best.Write('sig_sm')
-sig_ps_best.Write('sig_ps')
-sig_mm_best.Write('sig_mm')
-data_best.Write('data_obs')
-
-# make a directory for worst categories
-fout.mkdir('worst_categories')
-fout.cd('worst_categories')
-bkg_worst.Write('bkg')
-sig_sm_worst.Write('sig_sm')
-sig_ps_worst.Write('sig_ps')
-sig_mm_worst.Write('sig_mm')
-data_worst.Write('data_obs')
-
-fout.Close()
 
 import CombineHarvester.CombineTools.plotting as plot
 
@@ -440,7 +431,16 @@ def DrawCMSLogoCustom(pad, cmsText, extraText, iPosX, relPosX, relPosY, relExtra
         latex.SetTextAlign(align_)
         latex.DrawLatex(posX_, posY_, extraText)
 
-def propoganda_plot_phicp(sm,ps,mm, bkg,data,plot_name,extra_label='Preliminary',plot_mm=False):
+def propoganda_plot_phicp(sm,ps,mm, bkg,data,plot_name,fout,extra_label='Preliminary',plot_mm=False,lum='200 fb^{-1} (13 and 13.6 TeV)'):
+
+    dirname = plot_name.split('/')[-1]
+    fout.mkdir(dirname)
+    fout.cd(dirname)
+    sm.Write('sig_sm')
+    ps.Write('sig_ps')
+    mm.Write('sig_mm')
+    bkg.Write('bkg')
+    data.Write('data_obs')
 
     latex = ROOT.TLatex()
     latex.SetNDC()
@@ -524,15 +524,19 @@ def propoganda_plot_phicp(sm,ps,mm, bkg,data,plot_name,extra_label='Preliminary'
     if len(extra_label) > 11:
         relExtraDX+=0.2*(len(extra_label)-11)
     DrawCMSLogoCustom(pads[0], 'CMS', extra_label, 11, 0.05, -0.07, 0.2, relExtraDX, '', 1.0)
-    plot.DrawTitle(pads[0], '200 fb^{-1} (13 and 13.6 TeV)', 3)
+    plot.DrawTitle(pads[0], lum, 3)
 
     #Setup legend
-    if plot_mm: legend = plot.PositionedLegend(0.8,0.25,1,0.02,0.00)
-    else: legend = plot.PositionedLegend(0.8,0.13,1,0.,0.02)
-    # use 2 columns
-    legend.SetNColumns(4)
+
+    if plot_mm:
+        legend = plot.PositionedLegend(0.8,0.13,1,0.02,0.00)
+        legend.SetNColumns(5)
+        legend.SetTextSize(0.04)
+    else: 
+        legend = plot.PositionedLegend(0.8,0.13,1,0.,0.02)
+        legend.SetNColumns(4)
+        legend.SetTextSize(0.05)
     legend.SetTextFont(42)
-    legend.SetTextSize(0.05)
     legend.SetFillColor(0)
     legend.SetFillStyle(0)
 
@@ -560,15 +564,21 @@ def propoganda_plot_phicp(sm,ps,mm, bkg,data,plot_name,extra_label='Preliminary'
     line.DrawLine(0.,0.,360.,0.)
 
     c1.SaveAs(plot_name+'.pdf')
+    # save macro as well
+    c1.SaveAs(plot_name+'.C')
 
-propoganda_plot_phicp(sig_sm_best, sig_ps_best, sig_mm_best, bkg_best, data_best, f'{output_dir}/weighted_phiCP_10bin_categories', extra_label='Preliminary',plot_mm=True)
-propoganda_plot_phicp(sig_sm_worst, sig_ps_worst, sig_mm_worst, bkg_worst, data_worst, f'{output_dir}/weighted_phiCP_other_categories', extra_label='Supplementary',plot_mm=True)
+propoganda_plot_phicp(sig_sm_best, sig_ps_best, sig_mm_best, bkg_best, data_best, f'{output_dir}/weighted_phiCP_10bin_categories', fout, extra_label='Preliminary',plot_mm=True)
+propoganda_plot_phicp(sig_sm_worst, sig_ps_worst, sig_mm_worst, bkg_worst, data_worst, f'{output_dir}/weighted_phiCP_other_categories', fout, extra_label='Supplementary',plot_mm=True)
 
 if args.extra_plots:
-    # make a plot of run-2 only with best categories
+    run3_cats = [cat for cat in best_cats if '13p6TeV' in cat ]
+    bkg_run3, sig_sm_run3, sig_ps_run3, sig_mm_run3, data_run3 = CombineCats(run3_cats, histograms)
+    propoganda_plot_phicp(sig_sm_run3, sig_ps_run3, sig_mm_run3, bkg_run3, data_run3, f'{output_dir}/weighted_phiCP_run3_only', fout, extra_label='Preliminary',plot_mm=True,lum='62.4 fb^{-1} (13.6TeV)')
+
     run2_cats = [cat for cat in best_cats if '13TeV' in cat ]
     bkg_run2, sig_sm_run2, sig_ps_run2, sig_mm_run2, data_run2 = CombineCats(run2_cats, histograms)
-    propoganda_plot_phicp(sig_sm_run2, sig_ps_run2, sig_mm_run2, bkg_run2, data_run2, f'{output_dir}/weighted_phiCP_run2_only', extra_label='Preliminary')
+    propoganda_plot_phicp(sig_sm_run2, sig_ps_run2, sig_mm_run2, bkg_run2, data_run2, f'{output_dir}/weighted_phiCP_run2_only', fout, extra_label='Preliminary',plot_mm=True,lum='137 fb^{-1} (13TeV)')
+
 
     # make individual plots for each category including mm as well
     for cat in bin_set:
@@ -576,4 +586,6 @@ if args.extra_plots:
             continue
 
         bkg, sig_sm, sig_ps, sig_mm, data = CombineCats([cat], histograms)
-        propoganda_plot_phicp(sig_sm, sig_ps, sig_mm, bkg, data, f'{output_dir}/weighted_phiCP_{cat}', extra_label='Preliminary', plot_mm=True)
+        propoganda_plot_phicp(sig_sm, sig_ps, sig_mm, bkg, data, f'{output_dir}/weighted_phiCP_{cat}', fout, extra_label='Preliminary', plot_mm=True)
+
+fout.Close()
