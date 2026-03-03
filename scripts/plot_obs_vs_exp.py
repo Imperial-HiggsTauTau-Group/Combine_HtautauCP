@@ -16,6 +16,7 @@ parser.add_argument('--directory', type=str, help='Directory')
 parser.add_argument('--expected', type=str)
 parser.add_argument('--observed', type=str)
 parser.add_argument('--channel', type=str, help='Channel', default ='cmb')
+parser.add_argument('--extra_name', type=str, help='Extra name to append to output name', default ='')
 
 
 args = parser.parse_args()
@@ -195,4 +196,4 @@ if args.expected is None:
 elif args.observed is None:
     plt.savefig(os.path.join(args.directory, args.expected.replace('.root','_formatted.pdf')))
 else:
-    plt.savefig(os.path.join(args.directory, f'alpha_OBS_vs_EXP.pdf'))
+    plt.savefig(os.path.join(args.directory, f'alpha_OBS_vs_EXP_{args.channel}_{args.extra_name}.pdf'))

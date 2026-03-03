@@ -149,6 +149,7 @@ rands = res.randomizePars()
 p_vec = [None]*len(rands)
 for n in range(0,len(rands)):
     p_vec[n] = cb.cp().GetParameter(rands[n].GetName())
+    #print(rands[n].GetName(), p_vec[n].val())
 
 histograms = {}
 for b in bin_set:
@@ -189,9 +190,12 @@ for samp in range(samples+1): # note samp = 0 is nominal
             mm_sig = sel_bin.cp().signals().process(['ggH_mm_prod_sm_htt','ggH_mm_htt','qqH_mm_htt','WH_mm_htt','ZH_mm_htt']).GetShape()
             par.set_val(0.)
             sm_sig = sel_bin.cp().signals().process(['ggH_sm_prod_sm_htt','ggH_sm_htt','qqH_sm_htt','WH_sm_htt','ZH_sm_htt']).GetShape()
-        
+
+            #sm_sig_vbf = sel_bin.cp().signals().GetShape()
+            #print('VBF integral', sm_sig_vbf.Integral())
+
             bkg = sel_bin.cp().backgrounds().GetShape()
-    
+
             if args.unblind: 
                 data = sel_bin.cp().GetObservedShape()
             else:
@@ -557,8 +561,8 @@ def propoganda_plot_phicp(sm,ps,mm, bkg,data,plot_name,extra_label='Preliminary'
 
     c1.SaveAs(plot_name+'.pdf')
 
-propoganda_plot_phicp(sig_sm_best, sig_ps_best, sig_mm_best, bkg_best, data_best, f'{output_dir}/weighted_phiCP_10bin_categories', extra_label='Preliminary')
-propoganda_plot_phicp(sig_sm_worst, sig_ps_worst, sig_mm_worst, bkg_worst, data_worst, f'{output_dir}/weighted_phiCP_other_categories', extra_label='Supplementary')
+propoganda_plot_phicp(sig_sm_best, sig_ps_best, sig_mm_best, bkg_best, data_best, f'{output_dir}/weighted_phiCP_10bin_categories', extra_label='Preliminary',plot_mm=True)
+propoganda_plot_phicp(sig_sm_worst, sig_ps_worst, sig_mm_worst, bkg_worst, data_worst, f'{output_dir}/weighted_phiCP_other_categories', extra_label='Supplementary',plot_mm=True)
 
 if args.extra_plots:
     # make a plot of run-2 only with best categories

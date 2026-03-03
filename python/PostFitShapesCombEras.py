@@ -20,6 +20,7 @@ parser.add_argument('--cats', help= 'Categories to combine in same plots')
 parser.add_argument('--bin_match', '-b', help= 'String to match bin names to, if specified yields will only be printed for bins that match the string')
 parser.add_argument('--output', '-o', help= 'The output name of the root file', default='shapes_output.root')
 parser.add_argument('--freeze', help= 'Parameters to freeze to specified values. Format PARAM1,PARAM2=X,PARAM3=Y where the values X and Y are optional.')
+parser.add_argument('--dm_migration_uncerts', help="Compute numbers needed for estimating decay mode migrtion uncertainties", action='store_true')
 args = parser.parse_args()
 
 fout = ROOT.TFile(args.output,'RECREATE')
@@ -103,6 +104,42 @@ else:
 
 
 samples=500 
+
+
+def GetMigrationInputs(cmb_bin, b):
+  # Always pass a list to .bin()
+  bins = b if isinstance(b, (list, tuple)) else [b]
+
+  shape_sig = cmb_bin.cp().bin(bins).signals().GetShape()
+
+  # Helper to check substring for both list and string
+  def contains(pattern, x):
+    if isinstance(x, (list, tuple)):
+      return any(pattern in s for s in x)
+    return pattern in x
+
+  if contains('htt_mt_1_', b):
+    proc = 'ZTT_pi'
+  elif contains('htt_mt_2_', b):
+    proc = 'ZTT_rho'
+  elif contains('htt_mt_3_', b):
+    proc = 'ZTT_a11pr'
+  elif contains('htt_mt_4_', b):
+    proc = 'ZTT_a13pr'
+  else:
+    raise ValueError(f"No matching bin pattern found in: {b}")
+
+  
+  shape_true_sig = cmb_bin.cp().bin(bins).signals().process([proc]).GetShape()
+
+  N_true = shape_true_sig.Integral()
+  N_tot = shape_sig.Integral()
+  N_fake = N_tot - N_true
+
+  true_eff = N_true / N_tot if N_tot != 0 else 0
+  fake_eff = N_fake / N_tot if N_tot != 0 else 0
+
+  return true_eff, fake_eff
 
 
 if args.freeze:
@@ -267,6 +304,10 @@ for bin in bins_grouped:
     err = cmb_bin.cp().bin(bins).backgrounds().GetUncertainty()
     print('Total Bkg = %.1f +/- %.1f (%.3f)' % (rate, err, err/rate))
 
+    if args.dm_migration_uncerts:
+      eff_true_prefit, eff_fake_prefit = GetMigrationInputs(cmb_bin, bins)
+      print(f'DM Migrations (prefit): true eff. = {eff_true_prefit}, fake eff. = {eff_fake_prefit}')
+
   # get total post error on background
   if args.postfit:
   
@@ -279,6 +320,12 @@ for bin in bins_grouped:
     ave=0.
     ave_tot=0.
 
+    effs_samples = []
+
+    if args.dm_migration_uncerts:
+      eff_true_postfit, eff_fake_postfit = GetMigrationInputs(cmb_bin, bins)
+      print(f'DM Migrations (postfit): true eff. = {eff_true_postfit}, fake eff. = {eff_fake_postfit}')
+
     for x in range(0, samples):
   
       res.randomizePars()
@@ -287,6 +334,11 @@ for bin in bins_grouped:
   
       shapes_bkg_var = []
       shapes_tot_var = []
+
+      if args.dm_migration_uncerts:
+        eff_true_samp, eff_fake_samp = GetMigrationInputs(cmb_bin, bins)
+        effs_samples.append((eff_true_samp, eff_fake_samp))
+
       for b in bins:
         shape = cmb_bin.cp().bin([b]).backgrounds().GetShape()
         shape_total = cmb_bin.cp().bin([b]).GetShape()
@@ -330,6 +382,27 @@ for bin in bins_grouped:
     for i in range(1, shapes_tot[0].GetNbinsX()+1):
       err_total = (shapes_tot[0].GetBinError(i)/float(samples))**.5
       shapes_tot[0].SetBinError(i,err_total)
+
+    if args.dm_migration_uncerts:
+      tot = 0
+
+      sum_true_effs = 0
+      sum_fake_effs = 0
+      for x in effs_samples:
+        sum_true_effs += (x[0]-eff_true_postfit)**2  
+        sum_fake_effs += (x[1]-eff_fake_postfit)**2 
+
+      sum_true_effs/=len(effs_samples)
+      sum_fake_effs/=len(effs_samples)
+
+      err_true_effs = sum_true_effs**.5
+      err_fake_effs = sum_fake_effs**.5
+
+      print(f'DM Migrations (postfit): true eff. = {eff_true_postfit} +/- {err_true_effs}, fake eff. = {eff_fake_postfit} +/- {err_fake_effs}')
+      rel_err_true_effs = 1. + err_true_effs/eff_true_postfit
+      rel_err_fake_effs = 1. - err_fake_effs/eff_fake_postfit
+
+      print(f'DM Migrations rel. errors = {rel_err_true_effs}, {rel_err_fake_effs}')
 
   # now save our total background template with correct uncertainties
   fout.cd(dirname)

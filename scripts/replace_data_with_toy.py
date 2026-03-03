@@ -3,11 +3,12 @@ import ROOT
 # -----------------------------
 # user inputs
 # -----------------------------
+toy=1
 workspace_file = "outputs/Feb02_Unblinding/cmb/ws.root"
 workspace_name = "w"              # often "w"
 toy_file = "outputs/Feb02_Unblinding/cmb/higgsCombine.500Toys.GenerateOnly.mH125.123456.root"
-toy_dataset_name = "toys/toy_2"   # directory + dataset name inside file
-output_file = workspace_file.replace(".root", "_toy_data.root")  # e.g. ws_with_toy.root
+toy_dataset_name = f"toys/toy_{toy}"   # directory + dataset name inside file
+output_file = workspace_file.replace(".root", f"_toy{toy}_data.root")  # e.g. ws_with_toy.root
 
 # -----------------------------
 # open workspace file

@@ -51,16 +51,18 @@ for i, dm in enumerate([0,1,2,10]):
 for i, dm in enumerate([0,1,2,10]):
    if dm == 0:     
       cb.cp().process(['ZTT_pi']).bin_id([i+1]).AddSyst(cb, f"rate_param_DM{dm}PNet_gen_pi", "rateParam", ch.SystMap()(1.0))
-      cb.cp().process(['ZTT_pi'],False).bin_id([i+1]).AddSyst(cb, f"rate_param_DM{dm}PNet_others", "rateParam", ch.SystMap()(1.0))
+      cb.cp().process(['ZTT_pi'],False).bin_id([i+1]).AddSyst(cb, f"rate_param_DM{dm}PNet_gen_others", "rateParam", ch.SystMap()(1.0))
    elif dm == 1:
       cb.cp().process(['ZTT_rho']).bin_id([i+1]).AddSyst(cb, f"rate_param_DM{dm}PNet_gen_rho", "rateParam", ch.SystMap()(1.0))
-      cb.cp().process(['ZTT_rho'],False).bin_id([i+1]).AddSyst(cb, f"rate_param_DM{dm}PNet_others", "rateParam", ch.SystMap()(1.0))
+      cb.cp().process(['ZTT_rho'],False).bin_id([i+1]).AddSyst(cb, f"rate_param_DM{dm}PNet_gen_others", "rateParam", ch.SystMap()(1.0))
    elif dm == 2:
       cb.cp().process(['ZTT_a11pr']).bin_id([i+1]).AddSyst(cb, f"rate_param_DM{dm}PNet_gen_a11pr", "rateParam", ch.SystMap()(1.0))
-      cb.cp().process(['ZTT_a11pr'],False).bin_id([i+1]).AddSyst(cb, f"rate_param_DM{dm}PNet_others", "rateParam", ch.SystMap()(1.0))
+      #cb.cp().process(['ZTT_a11pr'],False).bin_id([i+1]).AddSyst(cb, f"rate_param_DM{dm}PNet_gen_others", "rateParam", ch.SystMap()(1.0)) ###
+      cb.cp().process(['ZTT_rho']).bin_id([i+1]).AddSyst(cb, f"rate_param_DM{dm}PNet_gen_rho", "rateParam", ch.SystMap()(1.0)) ###
+      cb.cp().process(['ZTT_a11pr','ZTT_rho'],False).bin_id([i+1]).AddSyst(cb, f"rate_param_DM{dm}PNet_gen_others", "rateParam", ch.SystMap()(1.0)) ###
    else:
       cb.cp().process(['ZTT_a13pr']).bin_id([i+1]).AddSyst(cb, f"rate_param_DM{dm}PNet_gen_a13pr", "rateParam", ch.SystMap()(1.0))
-      cb.cp().process(['ZTT_a13pr'],False).bin_id([i+1]).AddSyst(cb, f"rate_param_DM{dm}PNet_others", "rateParam", ch.SystMap()(1.0))
+      cb.cp().process(['ZTT_a13pr'],False).bin_id([i+1]).AddSyst(cb, f"rate_param_DM{dm}PNet_gen_others", "rateParam", ch.SystMap()(1.0))
 
 # set ranges for rate params
 for dm in [0,1,2,10]:
@@ -70,9 +72,11 @@ for dm in [0,1,2,10]:
       cb.GetParameter(f"rate_param_DM{dm}PNet_gen_rho").set_range(0.1,2.0)
    elif dm == 2:
       cb.GetParameter(f"rate_param_DM{dm}PNet_gen_a11pr").set_range(0.1,2.0)
+
+      cb.GetParameter(f"rate_param_DM{dm}PNet_gen_rho").set_range(0.0,2.0) ###
    else:      
       cb.GetParameter(f"rate_param_DM{dm}PNet_gen_a13pr").set_range(0.1,2.0)
-   cb.GetParameter(f"rate_param_DM{dm}PNet_others").set_range(0.1,2.0)
+   cb.GetParameter(f"rate_param_DM{dm}PNet_gen_others").set_range(0.1,2.0)
 
 print (">>>   file %s" % (filename))
 cb.cp().era(['13p6TeV']).ExtractShapes(filename, "$BIN/$PROCESS", "$BIN/$PROCESS_$SYSTEMATIC")

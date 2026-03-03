@@ -41,3 +41,13 @@ DM 10:
   tot = 0.023
   sf_true = 1.023
   sf_fake = 0.776
+
+
+# below is an alternative fit for DM=2 where rho also has a seperate rate param (note this goes to 0 in the fit)
+
+  eff = 0.696
+  u1 = 0.063  
+  u2 = 0.326  
+  tot = 0.389 
+  sf_true = 1.389
+  sf_false = 0.109 

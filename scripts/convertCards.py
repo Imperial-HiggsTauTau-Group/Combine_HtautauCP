@@ -332,10 +332,18 @@ def getHistogramAndWriteToFile(infile,outfile,dirname,write_dirname, incData=Fal
         #print('Processing:', dirname, histo.GetName()) 
         if dirname in cp_bins: nxbins = cp_bins[dirname]
         else: nxbins = 1  
+
+
         # we write all the old histograms to the output file
         outfile.cd()
         if not ROOT.gDirectory.GetDirectory(dirname): ROOT.gDirectory.mkdir(dirname)
         ROOT.gDirectory.cd(dirname)
+        if args.merge_phiCP_bins and dirname in cp_bins and nxbins > 1:
+            histo_merged = histo.Clone()
+            histo_merged.Rebin(nxbins)
+            histo_merged.SetName(histo.GetName())
+            histo_merged.Write()
+            continue
         histo.Write()    
         if nxbins== 1: continue    
         # if data we skip
@@ -421,6 +429,8 @@ def getFlattenedSysts(infile,outfile,dirname,write_dirname, incData=False):
 parser = argparse.ArgumentParser()
 parser.add_argument('--file', '-f', help= 'File from which we want to merge bins')
 parser.add_argument('--test', '-t', action='store_true', help= 'Run statistical tests on the histograms to check compatability of smoothed and unsmoothed histograms')
+parser.add_argument('--merge_phiCP_bins', help= 'Merge all phiCP bins into one bin', action='store_true')
+
 args = parser.parse_args()
 filename = args.file
 newfilename=filename.replace('.root','-mergeXbins.root')

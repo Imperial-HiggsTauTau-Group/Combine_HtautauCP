@@ -1,2 +1,2 @@
 input_folder: "/vols/cms/dw515/CH_CP_Run3/CMSSW_14_1_0_pre4/src/CombineHarvester/Combine_HtautauCP/dm_migration_cards_v2"
-output_folder: "outputs/DMMigrations_incTES_Feb17"
+output_folder: "outputs/DMMigrations_incTES_Feb18_3POIforDM2"

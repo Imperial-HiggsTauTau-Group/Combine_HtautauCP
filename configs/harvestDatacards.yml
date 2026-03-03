@@ -1,4 +1,4 @@
-input_folder: "/vols/cms/lcr119/offline/HiggsCP/CMSSW_14_1_0_pre4/src/CombineHarvester/Combine_HtautauCP/cpdatacards/Jan5_PreApp"
-output_folder: "outputs/Jan29_Unblinding"
-channels: "all"
+input_folder: "/vols/cms/dw515/CH_CP_Run3/CMSSW_14_1_0_pre4/src/CombineHarvester/Combine_HtautauCP/Feb18_StolenCards"
+output_folder: "outputs/test_dm_migrations_Feb18"
+channels: "tt"
 merge_mode: 1
