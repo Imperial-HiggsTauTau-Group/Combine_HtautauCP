@@ -399,4 +399,13 @@ root [10] 124./964
 (double) 0.12863071
 ```
 
+# Run lumi scaled scans
+
+make datacards. Note you have different options in case you want to use the Run-3 uncertainties vs the YR18 numbers
+
+```
+python3 scripts/harvestDatacards.py -c configs/harvestDatacards.yml
+```
+
+Run T2W adding a lumi_scale parameter which will scale everything by 3000/62.4 = 48.1:
 
