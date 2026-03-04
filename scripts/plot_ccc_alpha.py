@@ -203,6 +203,8 @@ def main(args):
         #                   0.095, 0.05, 1.0, '', 0.6)
         plot.DrawCMSLogo(canv, 'CMS', 'Supplementary', 0,
                            0.14, 0.05, 2.0, '', 0.85)
+
+        plot.DrawTitle(canv, "62.4 fb^{-1} (13.6 TeV)", 3, textSize=0.6)
     else:
         plot.DrawCMSLogo(canv, 'CMS', 'Supplementary', 11,
                            0.045, 0.05, 1.0, '', 0.6)
