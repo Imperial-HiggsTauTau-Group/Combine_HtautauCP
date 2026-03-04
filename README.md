@@ -401,7 +401,8 @@ root [10] 124./964
 
 # Run lumi scaled scans
 
-make datacards. Note you have different options in case you want to use the Run-3 uncertainties vs the YR18 numbers
+First to run scans for Run-3 systematics and no systematics
+make datacards in the usual way: 
 
 ```
 python3 scripts/harvestDatacards.py -c configs/harvestDatacards.yml
@@ -409,3 +410,60 @@ python3 scripts/harvestDatacards.py -c configs/harvestDatacards.yml
 
 Run T2W adding a lumi_scale parameter which will scale everything by 3000/62.4 = 48.1:
 
+```
+ combineTool.py -m 125 -M T2W -P CombineHarvester.Combine_HtautauCP.CPMixtureDecays:CPMixtureDecays -i outputs/HL_extraps_Run3Systs/cmb -o ws.root --parallel 8 --PO lumi_scale=48.1
+```
+
+Run fits for Run-3 systs:
+
+```
+combineTool.py -m 125 -M MultiDimFit --setParameters muV=1,alpha=0,muggH=1,mutautau=1 --setParameterRanges alpha=-20,20 --points 101 --redefineSignalPOIs alpha  -d outputs/HL_extraps_Run3Systs/cmb/ws.root --algo grid -t -1 --there --alignEdges 1 --job-mode condor  --sub-opts='+MaxRuntime=10800' --split-points 1 --cminDefaultMinimizerStrategy=0 --cminDefaultMinimizerTolerance=0.1 --cminFallbackAlgo Minuit2,Migrad,0:1 --cminFallbackAlgo Minuit2,Migrad,0:2 --cminFallbackAlgo Minuit2,Migrad,0:4 --cminFallbackAlgo Minuit2,Migrad,0:10 --task-name condor-hl_extrap -n .alpha
+```
+
+Run fits for no systs:
+
+```
+combineTool.py -m 125 -M MultiDimFit --setParameters muV=1,alpha=0,muggH=1,mutautau=1 --setParameterRanges alpha=-20,20 --points 101 --redefineSignalPOIs alpha  -d outputs/HL_extraps_Run3Systs/cmb/ws.root --algo grid -t -1 --there --alignEdges 1 --job-mode condor  --sub-opts='+MaxRuntime=10800' --split-points 1 --cminDefaultMinimizerStrategy=0 --cminDefaultMinimizerTolerance=0.1 --cminFallbackAlgo Minuit2,Migrad,0:1 --cminFallbackAlgo Minuit2,Migrad,0:2 --cminFallbackAlgo Minuit2,Migrad,0:4 --cminFallbackAlgo Minuit2,Migrad,0:10 --freezeParameters allConstrainedNuisances --task-name condor-hl_extrap_statonly -n .alpha.StatOnly
+```
+
+For running with YR18 systs need to update the config as follows:
+
+```
+output_folder: "outputs/HL_extraps_YR18systs_V2"
+YR18_uncertainties: True
+```
+This removes the bbb's (as bbb->0 in YR18 scheme) and scales some sytematics to the recomended values
+
+For other systematics experimental uncertainties will be scaled by 1/sqrt(L) = sqrt(62.4/300) = 0.144, and theory uncertainties are scaled by 0.5
+To do this extra scaling, first need to add nuisance groups using:
+```
+python3 scripts/add_nuisances_groups.py --dir outputs/HL_extraps_YR18systs_V2/cmb/
+```
+
+This creates the "yr18_groups" directory with datacards containing the nuisance groups 
+
+Now run T2W applying scaling for exp and theory uncerts:
+
+```
+combineTool.py -m 125 -M T2W -P CombineHarvester.Combine_HtautauCP.CPMixtureDecays:CPMixtureDecays -i yr18_groups/cmb -o ws.root --parallel 8 --PO lumi_scale=48.1 --X-rescale-nuisance 'theory.*' 0.5 --X-rescale-nuisance 'experimental.*' 0.144
+```
+
+Run the fits for this using:
+
+```
+combineTool.py -m 125 -M MultiDimFit --setParameters muV=1,alpha=0,muggH=1,mutautau=1 --setParameterRanges alpha=-20,20 --points 101 --redefineSignalPOIs alpha  -d yr18_groups/cmb/ws.root --algo grid -t -1 --there --alignEdges 1 --job-mode condor  --sub-opts='+MaxRuntime=10800' --split-points 1 --cminDefaultMinimizerStrategy=0 --cminDefaultMinimizerTolerance=0.1 --cminFallbackAlgo Minuit2,Migrad,0:1 --cminFallbackAlgo Minuit2,Migrad,0:2 --cminFallbackAlgo Minuit2,Migrad,0:4 --cminFallbackAlgo Minuit2,Migrad,0:10 --task-name condor-hl_extrap_yr18 -n .alpha.YR18
+```
+
+hadd add all the outputs of the batch jobs (if using the batch), then the graphs of the scans are produced using:
+
+```
+python3 scripts/plot1DScan.py --main outputs/HL_extraps_Run3Systs/cmb/higgsCombine.alpha.NewRange.MultiDimFit.mH125.root --POI=alpha --output=alpha_extrap_run3systs --no-numbers --no-box --x-min=-20 --x-max=20 --y-max=30
+python3 scripts/plot1DScan.py --main outputs/HL_extraps_Run3Systs/cmb/higgsCombine.alpha.StatOnly.MultiDimFit.mH125.root --POI=alpha --output=alpha_extrap_nosysts --no-numbers --no-box --x-min=-20 --x-max=20 --y-max=30
+python3 scripts/plot1DScan.py --main yr18_groups/cmb/higgsCombine.alpha.YR18.MultiDimFit.mH125.root --POI=alpha --output=alpha_extrap_yr18systs --no-numbers --no-box --x-min=-20 --x-max=20 --y-max=30
+```
+
+Then make plot using:
+
+```
+python3 scripts/plot_hl_extrap.py --run3_systs alpha_extrap_run3systs.root --stat_only alpha_extrap_nosysts.root --yr18_systs alpha_extrap_yr18systs.root --directory ./
+```

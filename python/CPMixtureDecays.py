@@ -7,6 +7,8 @@ class CPMixtureDecays(PhysicsModel):
         PhysicsModel.__init__(self)
         self.do_kappas = False
         self.float_mutautau = False
+        self.do_lum_scale = False
+        self.lum_scale = 1.0
 
     def setPhysicsOptions(self, physOptions):
         for po in physOptions:
@@ -14,6 +16,9 @@ class CPMixtureDecays(PhysicsModel):
                 self.do_kappas = True
             if po.startswith("float_mutautau"):
                 self.float_mutautau = True
+            if po.startswith("lumi_scale"):
+                self.do_lum_scale = True
+                self.lum_scale = float(po.split('=')[1])
 
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
@@ -36,6 +41,9 @@ class CPMixtureDecays(PhysicsModel):
             self.modelBuilder.doVar('mutautau[1]')
             self.modelBuilder.doVar('muV[1,-5,10]')
             self.modelBuilder.doVar('muggH[1,-5,10]')
+
+          if self.do_lum_scale:
+            self.modelBuilder.doVar('lumi_scale[%f]' % self.lum_scale)
 
           self.modelBuilder.doSet('POI', ','.join(poiNames))
 
@@ -70,9 +78,16 @@ class CPMixtureDecays(PhysicsModel):
             self.modelBuilder.factory_('expr::muV_%s("@0*@1", muV, %s)' % (x,x))
             self.modelBuilder.factory_('expr::muggH_%s("@0*@1", muggH, %s)' % (x,x))
 
+            if self.do_lum_scale:
+                self.modelBuilder.factory_('expr::lumi_scale_muV_%s("@0*@1*@2", lumi_scale, muV, %s)' % (x,x))
+                self.modelBuilder.factory_('expr::lumi_scale_muggH_%s("@0*@1*@2", lumi_scale, muggH, %s)' % (x,x))
+
     def getYieldScale(self, bin_, process):
 
         scalings = []
+
+        if self.do_lum_scale:
+            scalings.append('lumi_scale')
 
         if 'ggH' in process: 
             scalings.append('muggH')

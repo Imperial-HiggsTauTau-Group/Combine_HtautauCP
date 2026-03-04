@@ -13,17 +13,27 @@ def get_args():
 
 def split_systematics(s):
     name = s.name()
+
+    # protected parameters:
+
+    special_systs = ['lumi','CMS_eff_m', 'CMS_eff_e', 'eff_t_syst_floor', 'CMS_HIG25012_eff_m_trigger', 'CMS_HIG25012_eff_e_trigger','CMS_scale_j_', 'CMS_res_j_', 'CMS_HIG25012_scale_met', 'CMS_HIG25012_res_met']
+
     if s.name() not in systematic_groups['all']:
+
+        if True in [s.name().startswith(special) for special in special_systs]:
+            return
+
         # print(f"Adding systematic: {name}")
         systematic_groups['all'].append(name)
         if "bbb" in name:
             systematic_groups['bbb'].append(name)
-        elif ("CMS_" in name or 'lumi_' in name or name.startswith("ff_") or name.startswith('SV_eff')) and "Z_pt" not in name and 'dy_pt' not in name:
+        elif ("CMS_" in name or 'lumi' in name or name.startswith("ff_") or name.startswith('SV_eff') or name.startswith('dy_pt')):
             systematic_groups['systematic'].append(name)
-        elif "QCDscale" in name or "pdf_" in name or "BR_htt" in name or 'top_pt' in name or  "Z_pt" in name or 'dy_pt' in name or 'cross_section' in name or 'ps_isr' in name or 'ps_fsr' in name:
+        elif "QCDscale" in name or "pdf_" in name or "BR_htt" in name or 'top_pt' in name or 'cross_section' in name or 'ps_isr' in name or 'ps_fsr' in name:
             systematic_groups['theory'].append(name)
         else:
             systematic_groups['other'].append(name)
+
 
 
 
@@ -56,15 +66,15 @@ def add_groups():
             raise RuntimeError("Please categorize the above systematics into a group before proceeding.")
 
 
-        cb.AddDatacardLineAtEnd(f"theory group = {' '.join(systematic_groups['theory'])}")
-        cb.AddDatacardLineAtEnd(f"experimental group = {' '.join(systematic_groups['systematic'])}")
-        cb.AddDatacardLineAtEnd(f"bbb group = {' '.join(systematic_groups['bbb'])}")
+        if len(systematic_groups['theory']) > 0: cb.AddDatacardLineAtEnd(f"theory group = {' '.join(systematic_groups['theory'])}")
+        if len(systematic_groups['systematic']) > 0: cb.AddDatacardLineAtEnd(f"experimental group = {' '.join(systematic_groups['systematic'])}")
+        if len(systematic_groups['bbb']) > 0: cb.AddDatacardLineAtEnd(f"bbb group = {' '.join(systematic_groups['bbb'])}")
 
 
         # Write datacards
         print(">>> Writing datacards...")
-        datacardtxt  = "%s/$TAG/$BIN.txt" % ('run2run3_grouped')
-        datacardroot = "%s/$TAG/common/$BIN_input.root" % ('run2run3_grouped')
+        datacardtxt  = "%s/$TAG/$BIN.txt" % ('yr18_groups')
+        datacardroot = "%s/$TAG/common/$BIN_input.root" % ('yr18_groups')
         writer = ch.CardWriter(datacardtxt,datacardroot)
         writer.SetVerbosity(1)
         writer.SetWildcardMasses([ ])
