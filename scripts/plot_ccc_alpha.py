@@ -9,8 +9,8 @@ import CombineHarvester.CombineTools.plotting as plot
 
 
 label_dict = {
-    "htt_et": "e#tau_{h}",
-    "htt_mt": "#mu#tau_{h}",
+    "htt_et": "#tau_{e}#tau_{h}",
+    "htt_mt": "#tau_{#mu}#tau_{h}",
     "htt_tt": "#tau_{h}#tau_{h}",
 }
 
@@ -143,12 +143,18 @@ def main(args):
     ROOT.gPad.SetTicky()
     ROOT.gPad.RedrawAxis()
 
+    globalFitLine_gr = ROOT.TGraph()
+    globalFitLine_gr.SetMarkerStyle(20)
+    globalFitLine_gr.SetLineWidth(3)
+
     if args.legend_position == 0:
         #legend = ROOT.TLegend(0.18, 0.77, 0.48, 0.92)
         # legend above plot with 2 columns
-        legend = ROOT.TLegend(0.18, 0.95, 0.9, 1.0)
+        #legend = ROOT.TLegend(0.18, 0.95, 0.9, 1.0)
+        #legend.SetNColumns(2)
+        legend = ROOT.TLegend(0.17, 0.82, 0.35, 0.92)
         legend.SetFillStyle(0)
-        legend.SetNColumns(2)
+        legend.SetNColumns(1)
     elif args.legend_position == 1:
         legend = ROOT.TLegend(0.65, 0.77, 0.95, 0.92)
     elif args.legend_position == 2:
@@ -156,7 +162,7 @@ def main(args):
     else:
         legend = ROOT.TLegend(0.18, 0.13, 0.48, 0.28)
 
-    legend.AddEntry(globalFitLine, "Global Best Fit", "l")
+    legend.AddEntry(globalFitLine_gr, "Global Best Fit", "lp")
     legend.AddEntry(globalFitBand, "Global Best Fit #pm 1 #sigma", "f")
     legend.SetTextSize(0.032)
     legend.Draw()
@@ -169,9 +175,9 @@ def main(args):
     latex2.SetTextAngle(0)
     latex2.SetTextColor(ROOT.kBlack)
     latex2.SetTextSize(extra_ts)
-    begin_left = 0.200
+    begin_left = 0.175 #0.200
     begin_right = 0.68
-    up_pos = 0.690
+    up_pos = 0.82 #0.690
     spacing = 0.04
     low_pos = 0.470
 
@@ -190,15 +196,17 @@ def main(args):
         elif args.legend_position == 3:
             latex2.DrawLatex(begin_left, low_pos-1*spacing, label)
 
-    ## Draw CMS logo in upper left corner
-    #cms_outside = True
-    #if cms_outside:
-    #    plot.DrawCMSLogo(canv, 'CMS', 'Supplementary', 0,
-    #                       0.095, 0.05, 1.0, '', 0.6)
-    #else:
-    #    plot.DrawCMSLogo(canv, 'CMS', 'Supplementary', 11,
-    #                       0.045, 0.05, 1.0, '', 0.6)
-    ## Draw luminosity label
+    # Draw CMS logo in upper left corner
+    cms_outside = True
+    if cms_outside:
+        #plot.DrawCMSLogo(canv, 'CMS', 'Supplementary', 0,
+        #                   0.095, 0.05, 1.0, '', 0.6)
+        plot.DrawCMSLogo(canv, 'CMS', 'Supplementary', 0,
+                           0.14, 0.05, 2.0, '', 0.85)
+    else:
+        plot.DrawCMSLogo(canv, 'CMS', 'Supplementary', 11,
+                           0.045, 0.05, 1.0, '', 0.6)
+    # Draw luminosity label
     #styles.DrawTitle(canv, "62.4 fb^{-1} (13.6 TeV)", 3, 0.6)
 
     canv.Print(args.output + ".pdf", "pdf")
