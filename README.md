@@ -445,7 +445,7 @@ This creates the "yr18_groups" directory with datacards containing the nuisance 
 Now run T2W applying scaling for exp and theory uncerts:
 
 ```
-combineTool.py -m 125 -M T2W -P CombineHarvester.Combine_HtautauCP.CPMixtureDecays:CPMixtureDecays -i yr18_groups/cmb -o ws.root --parallel 8 --PO lumi_scale=48.1 --X-rescale-nuisance 'theory.*' 0.5 --X-rescale-nuisance 'experimental.*' 0.144
+combineTool.py -m 125 -M T2W -P CombineHarvester.Combine_HtautauCP.CPMixtureDecays:CPMixtureDecays -i yr18_groups/cmb -o ws.root --parallel 8 --PO lumi_scale=48.1 --X-nuisance-group-function theory 0.5 --X-nuisance-group-function experimental 0.144
 ```
 
 Run the fits for this using:
