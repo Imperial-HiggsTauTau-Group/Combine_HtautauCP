@@ -99,36 +99,39 @@ if args.yr18_systs is not None:
 
 
 fig, ax = plt.subplots(figsize=(7.5,6))
+
+new_range=False
+if new_range: 
+    xlim = 8
+    xlim_extra = 1.8
+else: 
+    xlim = 15
+    xlim_extra = 3.8
+
 # add CLs
 ax.axhline(levels[0], color='grey', linestyle='-', linewidth=0.75)
-ax.text(-15, levels[0]+0.1, '68.3%', color='grey', fontsize=14, verticalalignment='bottom', horizontalalignment='right')
+ax.text(-xlim+xlim_extra, levels[0]+0.1, '68.3%', color='grey', fontsize=14, verticalalignment='bottom', horizontalalignment='right')
 ax.axhline(levels[1], color='grey', linestyle='-', linewidth=0.75)
-ax.text(-15, levels[1]+0.1, '95.5%', color='grey', fontsize=14,  verticalalignment='bottom', horizontalalignment='right')
+ax.text(-xlim+xlim_extra, levels[1]+0.1, '95.5%', color='grey', fontsize=14,  verticalalignment='bottom', horizontalalignment='right')
 ax.axhline(levels[2], color='grey', linestyle='-', linewidth=0.75)
-ax.text(-15, levels[2]+0.1, '99.7%', color='grey', fontsize=14, verticalalignment='bottom', horizontalalignment='right')
+ax.text(-xlim+xlim_extra, levels[2]+0.1, '99.7%', color='grey', fontsize=14, verticalalignment='bottom', horizontalalignment='right')
 
 
 if args.run3_systs is not None:
     bestfit_exp = alpha_run3_systs[np.argmin(nll_exp)]
     print(f"Best fit run3_systs alpha: {bestfit_exp}")
     # intersections and 1 and 2 sigma
-    if int_1sig_exp_exists:
-        label_string_run3_systs = rf"With Run-3 syst. uncert.: $\alpha^{{H\tau\tau}} = {round(np.abs(bestfit_exp),0):.0f} \pm {round((np.abs(bestfit_exp-int_1sig_exp[1])+np.abs(bestfit_exp-int_1sig_exp[0]))/2,0):.0f} ^\circ$"
+    if args.yr18_systs is not None:
+        if int_1sig_exp_exists:
+            label_string_run3_systs = rf"With Run-3 syst. uncert.: $\alpha^{{H\tau\tau}} = {round(np.abs(bestfit_exp),0):.0f} \pm {round((np.abs(bestfit_exp-int_1sig_exp[1])+np.abs(bestfit_exp-int_1sig_exp[0]))/2,0):.0f} ^\circ$"
+        else:
+            label_string_run3_systs = rf"With Run-3 syst. uncert.: $\alpha^{{H\tau\tau}} = {round(np.abs(bestfit_exp),0):.0f} ^\circ$"
     else:
-        label_string_run3_systs = rf"With Run-3 syst. uncert.: $\alpha^{{H\tau\tau}} = {round(np.abs(bestfit_exp),0):.0f} ^\circ$"
+        if int_1sig_exp_exists:
+            label_string_run3_systs = rf"Stat. + syst. uncerts.: $\alpha^{{H\tau\tau}} = {round(bestfit_exp,0):.0f} \pm {round((np.abs(bestfit_exp-int_1sig_exp[1])+np.abs(bestfit_exp-int_1sig_exp[0]))/2,0):.0f} ^\circ$"
+        else:
+            label_string_run3_systs = rf"Stat. + syst. uncerts.: $\alpha^{{H\tau\tau}} = {round(bestfit_exp,0):.0f} ^\circ$"
 
-
-
-if args.stat_only is not None:
-    # add NLL curve
-    bestfit_obs = alpha_stat_only[np.argmin(nll_obs)]
-    print(f"Best fit stat_only alpha: {bestfit_obs}")
-
-    # intersections and 1 and 2 sigma
-    if int_1sig_obs_exists:
-        label_string_stat_only = rf"With Stat. uncert. only: $\alpha^{{H\tau\tau}} = {round(bestfit_obs,0):.0f} \pm {round((np.abs(bestfit_obs-int_1sig_obs[1])+np.abs(bestfit_obs-int_1sig_obs[0]))/2,0):.0f} ^\circ$"
-    else:
-        label_string_stat_only = rf"With Stat. uncert. only: $\alpha^{{H\tau\tau}} = {round(bestfit_obs,0):.0f} ^\circ$"
 
 if args.yr18_systs is not None:
     bestfit_yr18_systs = alpha_yr18_systs[np.argmin(nll_yr18_systs)]
@@ -140,25 +143,42 @@ if args.yr18_systs is not None:
         label_string_yr18_systs = rf"With YR18 syst. uncert.: $\alpha^{{H\tau\tau}} = {round(np.abs(bestfit_yr18_systs),0):.0f}$ ^\circ"
 
 if args.stat_only is not None:
+    # add NLL curve
+    bestfit_obs = alpha_stat_only[np.argmin(nll_obs)]
+    print(f"Best fit stat_only alpha: {bestfit_obs}")
+
+    # intersections and 1 and 2 sigma
+    if int_1sig_obs_exists:
+        label_string_stat_only = rf"Stat. uncert. only: $\alpha^{{H\tau\tau}} = {round(bestfit_obs,0):.0f} \pm {round((np.abs(bestfit_obs-int_1sig_obs[1])+np.abs(bestfit_obs-int_1sig_obs[0]))/2,0):.0f} ^\circ$"
+    else:
+        label_string_stat_only = rf"Stat. uncert. only: $\alpha^{{H\tau\tau}} = {round(bestfit_obs,0):.0f} ^\circ$"
+
+if args.stat_only is not None:
     ax.plot(alpha_stat_only, nll_obs, linestyle='-', color='red', label=label_string_stat_only)
 if args.run3_systs is not None:
     ax.plot(alpha_run3_systs, nll_exp, linestyle='-', color='darkblue', label=label_string_run3_systs)
 if args.yr18_systs is not None:
     ax.plot(alpha_yr18_systs, nll_yr18_systs, linestyle='-', color='black', label=label_string_yr18_systs)
 
-ax.set_ylim(0, 40)
+if new_range:
+    ax.set_ylim(0, 11)
+else:
+    ax.set_ylim(0, 25)
 
 ax.set_xlabel(r'$\alpha^{H\tau\tau}$ (degrees)')
 ax.set_ylabel(r'-2$\Delta$lnL')
 
-ax.set_xlim(-20, 20)
+ax.set_xlim(-xlim, xlim)
+
+
 fig.tight_layout(pad=1.2)
-plt.legend(frameon=True, loc='upper center', fontsize=15.5)
+plt.legend(frameon=False, loc='upper center', fontsize=15.5)
+#plt.legend(frameon=True, loc='upper center', fontsize=15.5)
 
 #hep.cms.label(ax=ax, label="Preliminary", data=True, lumi="Projection, 3", com='13.6', fontsize=18)
 hep.cms.label(
     ax=ax,
-    label="Supplementary",
+    label="Preliminary",
     data=True,
     rlabel=r"$Projection, 3\,\mathrm{ab}^{-1}$ ($13.6$ TeV)",
     fontsize=18,
