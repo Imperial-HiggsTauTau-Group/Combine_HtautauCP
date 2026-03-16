@@ -162,8 +162,8 @@ def main(args):
     else:
         legend = ROOT.TLegend(0.18, 0.13, 0.48, 0.28)
 
-    legend.AddEntry(globalFitLine_gr, "Global Best Fit", "lp")
-    legend.AddEntry(globalFitBand, "Global Best Fit #pm 1 #sigma", "f")
+    legend.AddEntry(globalFitLine_gr, "Global best fit", "lp")
+    legend.AddEntry(globalFitBand, "Global best fit #pm 1 #sigma", "f")
     legend.SetTextSize(0.032)
     legend.Draw()
 
