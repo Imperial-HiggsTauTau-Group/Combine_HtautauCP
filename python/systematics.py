@@ -141,7 +141,7 @@ def AddSMRun3Systematics(cb):
     for era in eras:
         for eta in ['0p0', '1p5']:
             for dm in ['0', '1', '2', '10']:
-                cb.cp().process(mc_procs).process(['ZL']).bin_id([1,2]).channel(['et']).AddSyst(cb, f'CMS_fake_t_DeepTau2018v2p5_VSe_{era}_eta_{eta}_DM{dm}PNet', 'shape', ch.SystMap()(1.0))
+                cb.cp().process(mc_procs).process(['ZL']).bin_id([1,2,100]).channel(['et']).AddSyst(cb, f'CMS_fake_t_DeepTau2018v2p5_VSe_{era}_eta_{eta}_DM{dm}PNet', 'shape', ch.SystMap()(1.0))
 
             cb.cp().process(mc_procs).process(['ZL']).bin_id([4]).channel(['et']).AddSyst(cb, f'CMS_fake_t_DeepTau2018v2p5_VSe_{era}_eta_{eta}_DM0PNet', 'shape', ch.SystMap()(1.0))
             cb.cp().process(mc_procs).process(['ZL']).bin_id([3]).channel(['et']).AddSyst(cb, f'CMS_fake_t_DeepTau2018v2p5_VSe_{era}_eta_{eta}_DM1PNet', 'shape', ch.SystMap()(1.0))
@@ -154,7 +154,7 @@ def AddSMRun3Systematics(cb):
         # statistical uncertainties from fitted function parameters
         for u in ['stat1','stat2']:
             for dm in ['0', '1', '2', '10']:
-                cb.cp().process(mc_procs).process(['ZL'], False).bin_id([1,2]).AddSyst(cb, f'CMS_HIG25012_eff_t_DeepTau2018v2p5_VSjet_{u}_DM{dm}PNet_{era}', 'shape', ch.SystMap()(1.0))
+                cb.cp().process(mc_procs).process(['ZL'], False).bin_id([1,2,100]).AddSyst(cb, f'CMS_HIG25012_eff_t_DeepTau2018v2p5_VSjet_{u}_DM{dm}PNet_{era}', 'shape', ch.SystMap()(1.0))
                 # uncomment the line below if want ZL to have Tau ID unct. as well
                 # cb.cp().process(['ZL']).channel(['tt']).bin_id([1,2]).AddSyst(cb, f'CMS_HIG25012_eff_t_DeepTau2018v2p5_VSjet_{u}_DM{dm}PNet_{era}', 'shape', ch.SystMap()(1.0))
 
@@ -192,7 +192,7 @@ def AddSMRun3Systematics(cb):
         # tau leg uncertainties
         for trig in ['ditau','ditaujet']:
             for dm in ['0', '1', '2', '10']:
-                cb.cp().process(mc_procs).channel(['tt']).bin_id([1,2]).AddSyst(cb, f'CMS_HIG25012_trig_t_{trig}_VTight_DM{dm}PNet_{era}', 'shape', ch.SystMap()(1.0))
+                cb.cp().process(mc_procs).channel(['tt']).bin_id([1,2,100]).AddSyst(cb, f'CMS_HIG25012_trig_t_{trig}_VTight_DM{dm}PNet_{era}', 'shape', ch.SystMap()(1.0))
             cb.cp().process(mc_procs).channel(['tt']).bin_id([7,8,9,10]).AddSyst(cb, f'CMS_HIG25012_trig_t_{trig}_VTight_DM0PNet_{era}', 'shape', ch.SystMap()(1.0))
             cb.cp().process(mc_procs).channel(['tt']).bin_id([3,4,5,7]).AddSyst(cb, f'CMS_HIG25012_trig_t_{trig}_VTight_DM1PNet_{era}', 'shape', ch.SystMap()(1.0))
             cb.cp().process(mc_procs).channel(['tt']).bin_id([4,10,11]).AddSyst(cb, f'CMS_HIG25012_trig_t_{trig}_VTight_DM2PNet_{era}', 'shape', ch.SystMap()(1.0))
@@ -213,7 +213,7 @@ def AddSMRun3Systematics(cb):
     # e->tau fake energy scale
     for era in eras:
         for dm in ['0', '1', '2', '10']:
-            cb.cp().process(mc_procs).process(['ZL']).channel(['et']).bin_id([1,2]).AddSyst(cb, f'CMS_HIG25012_scale_t_eFake_DM{dm}PNet_{era}', 'shape', ch.SystMap()(1.0))
+            cb.cp().process(mc_procs).process(['ZL']).channel(['et']).bin_id([1,2,100]).AddSyst(cb, f'CMS_HIG25012_scale_t_eFake_DM{dm}PNet_{era}', 'shape', ch.SystMap()(1.0))
 
         cb.cp().process(mc_procs).process(['ZL']).channel(['et']).bin_id([4]).AddSyst(cb, f'CMS_HIG25012_scale_t_eFake_DM0PNet_{era}', 'shape', ch.SystMap()(1.0))
         cb.cp().process(mc_procs).process(['ZL']).channel(['et']).bin_id([3]).AddSyst(cb, f'CMS_HIG25012_scale_t_eFake_DM1PNet_{era}', 'shape', ch.SystMap()(1.0))
@@ -234,7 +234,7 @@ def AddSMRun3Systematics(cb):
     # genuine tau energy scale
     for era in eras:
         for dm in ['0', '1', '2', '10']:
-            cb.cp().process(mc_procs).process(['ZL'], False).bin_id([1,2]).AddSyst(cb, f'CMS_HIG25012_scale_t_DM{dm}PNet_{era}', 'shape', ch.SystMap()(1.0))
+            cb.cp().process(mc_procs).process(['ZL'], False).bin_id([1,2,100]).AddSyst(cb, f'CMS_HIG25012_scale_t_DM{dm}PNet_{era}', 'shape', ch.SystMap()(1.0))
 
         cb.cp().process(mc_procs).process(['ZL'],False).channel(['tt']).bin_id([7,8,9,10]).AddSyst(cb, f'CMS_HIG25012_scale_t_DM0PNet_{era}', 'shape', ch.SystMap()(1.0))
         cb.cp().process(mc_procs).process(['ZL'],False).channel(['tt']).bin_id([3,4,5,7]).AddSyst(cb, f'CMS_HIG25012_scale_t_DM1PNet_{era}', 'shape', ch.SystMap()(1.0))
@@ -291,10 +291,10 @@ def AddSMRun3Systematics(cb):
 
     # tt channel statistical uncertainties
     for njets in [0,1,2]:
-        cb.cp().process(['JetFakes']).channel(['tt']).bin_id([1,2,7,8,9,10]).AddSyst(cb, f"CMS_HIG25012_fake_t_stat_dm0_{njets}j", "shape", ch.SystMap()(1.0))
-        cb.cp().process(['JetFakes']).channel(['tt']).bin_id([1,2,3,4,5,7]).AddSyst(cb, f"CMS_HIG25012_fake_t_stat_dm1_{njets}j", "shape", ch.SystMap()(1.0))
-        cb.cp().process(['JetFakes']).channel(['tt']).bin_id([1,2,4,10,11]).AddSyst(cb, f"CMS_HIG25012_fake_t_stat_dm2_{njets}j", "shape", ch.SystMap()(1.0))
-        cb.cp().process(['JetFakes']).channel(['tt']).bin_id([1,2,5,6,9,11]).AddSyst(cb, f"CMS_HIG25012_fake_t_stat_dm10_{njets}j", "shape", ch.SystMap()(1.0))
+        cb.cp().process(['JetFakes']).channel(['tt']).bin_id([1,2,7,8,9,10,100]).AddSyst(cb, f"CMS_HIG25012_fake_t_stat_dm0_{njets}j", "shape", ch.SystMap()(1.0))
+        cb.cp().process(['JetFakes']).channel(['tt']).bin_id([1,2,3,4,5,7,100]).AddSyst(cb, f"CMS_HIG25012_fake_t_stat_dm1_{njets}j", "shape", ch.SystMap()(1.0))
+        cb.cp().process(['JetFakes']).channel(['tt']).bin_id([1,2,4,10,11,100]).AddSyst(cb, f"CMS_HIG25012_fake_t_stat_dm2_{njets}j", "shape", ch.SystMap()(1.0))
+        cb.cp().process(['JetFakes']).channel(['tt']).bin_id([1,2,5,6,9,11,100]).AddSyst(cb, f"CMS_HIG25012_fake_t_stat_dm10_{njets}j", "shape", ch.SystMap()(1.0))
 
     # add lnN FF uncertainty from yml file located in configs/ff_lnN_uncertainties.yml
     # open yml file and read uncertainties
@@ -308,10 +308,10 @@ def AddSMRun3Systematics(cb):
     # add shape uncertainties for BDT score, this is decorrelated between tau, fake, and higgs categories
     cb.cp().process(['JetFakes']).channel(['tt']).bin_id([1]).AddSyst(cb, "CMS_HIG25012_fake_t_syst_BDTshape_tau", "shape", ch.SystMap()(1.0))
     cb.cp().process(['JetFakes']).channel(['tt']).bin_id([2]).AddSyst(cb, "CMS_HIG25012_fake_t_syst_BDTshape_fake", "shape", ch.SystMap()(1.0))
-    cb.cp().process(['JetFakes']).channel(['tt']).bin_id([1,2], False).AddSyst(cb, "CMS_HIG25012_fake_t_syst_BDTshape_higgs", "shape", ch.SystMap()(1.0))
+    cb.cp().process(['JetFakes']).channel(['tt']).bin_id([1,2,100], False).AddSyst(cb, "CMS_HIG25012_fake_t_syst_BDTshape_higgs", "shape", ch.SystMap()(1.0))
 
     # add shape uncertainties for aco angle, this is decorrelated between categories
-    cb.cp().process(['JetFakes']).channel(['tt']).bin_id([1,2], False).AddSyst(cb, "CMS_HIG25012_fake_t_syst_acoshape_$BIN", "shape", ch.SystMap()(1.0))
+    cb.cp().process(['JetFakes']).channel(['tt']).bin_id([1,2,100], False).AddSyst(cb, "CMS_HIG25012_fake_t_syst_acoshape_$BIN", "shape", ch.SystMap()(1.0))
     # uncertainty due to subtracted real taus in the tt channel (uncorrelated in the harvester)
     cb.cp().process(['JetFakes']).channel(['tt']).AddSyst(cb, "CMS_HIG25012_fake_t_sub_syst", "shape", ch.SystMap()(1.0))
     # lnN uncertainty for the JetFakesSublead as it is estimated from MC
@@ -321,10 +321,10 @@ def AddSMRun3Systematics(cb):
     for ff_type in ['wj','qcd','mc_top']:
         # statistics
         for njets in [0,1,2]:
-            cb.cp().process(['JetFakes']).channel(['mt','et']).bin_id([1,2,4]).AddSyst(cb, f"CMS_HIG25012_fake_t_{ff_type}_stat_dm0_{njets}j", "shape", ch.SystMap()(1.0))
-            cb.cp().process(['JetFakes']).channel(['mt','et']).bin_id([1,2,3]).AddSyst(cb, f"CMS_HIG25012_fake_t_{ff_type}_stat_dm1_{njets}j", "shape", ch.SystMap()(1.0))
-            cb.cp().process(['JetFakes']).channel(['mt','et']).bin_id([1,2,6]).AddSyst(cb, f"CMS_HIG25012_fake_t_{ff_type}_stat_dm2_{njets}j", "shape", ch.SystMap()(1.0))
-            cb.cp().process(['JetFakes']).channel(['mt','et']).bin_id([1,2,5]).AddSyst(cb, f"CMS_HIG25012_fake_t_{ff_type}_stat_dm10_{njets}j", "shape", ch.SystMap()(1.0))
+            cb.cp().process(['JetFakes']).channel(['mt','et']).bin_id([1,2,4,100]).AddSyst(cb, f"CMS_HIG25012_fake_t_{ff_type}_stat_dm0_{njets}j", "shape", ch.SystMap()(1.0))
+            cb.cp().process(['JetFakes']).channel(['mt','et']).bin_id([1,2,3,100]).AddSyst(cb, f"CMS_HIG25012_fake_t_{ff_type}_stat_dm1_{njets}j", "shape", ch.SystMap()(1.0))
+            cb.cp().process(['JetFakes']).channel(['mt','et']).bin_id([1,2,6,100]).AddSyst(cb, f"CMS_HIG25012_fake_t_{ff_type}_stat_dm2_{njets}j", "shape", ch.SystMap()(1.0))
+            cb.cp().process(['JetFakes']).channel(['mt','et']).bin_id([1,2,5,100]).AddSyst(cb, f"CMS_HIG25012_fake_t_{ff_type}_stat_dm10_{njets}j", "shape", ch.SystMap()(1.0))
 
         # systematic # uncorrelate et and mt for qcd only
         cb.cp().process(['JetFakes']).channel(['mt','et']).AddSyst(cb, f"CMS_HIG25012_fake_t_{ff_type}_syst", "shape", ch.SystMap()(1.0))
