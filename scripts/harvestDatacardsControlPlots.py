@@ -154,6 +154,7 @@ writer = ch.CardWriter(datacardtxt,datacardroot)
 writer.SetVerbosity(1)
 writer.SetWildcardMasses([ ])
 
+writer.WriteCards("cmb", cb)
 # Cards per channel
 writer.WriteCards("tt", cb.cp().channel({"tt"}))
 writer.WriteCards("mt", cb.cp().channel({"mt"}))

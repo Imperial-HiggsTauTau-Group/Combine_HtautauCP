@@ -329,3 +329,28 @@ for b in 1 2 3 4; do python3 scripts/postfitPlotDMMigrations.py -b htt_mt_${b}_1
 
 for b in 1 2 3 4; do python3 scripts/postfitPlotDMMigrations.py -b htt_mt_${b}_13p6TeV --norm_bins --dir dm_migrations/prefit -i shapes_prefit.root; done
 ```
+
+# Make control plots with systematics
+
+run harvesting: 
+```
+scripts/harvestDatacardsControlPlots.py
+```
+
+run T2W:
+
+```
+combineTool.py -m 125 -M T2W -P CombineHarvester.Combine_HtautauCP.CPMixtureDecays:CPMixtureDecays -i outputs/MVis_ForSupplementary/cmb -o ws.root --parallel 8
+```
+
+run prefit shapes with systematics:
+
+```
+python3 python/PostFitShapesCombEras.py -w outputs/MVis_ForSupplementary/cmb/ws.root -d outputs/MVis_ForSupplementary/cmb/combined.txt.cmb -o shapes_m_vis_prefit.root
+```
+
+make plots:
+
+```
+for ch in et mt tt; do python3 scripts/postfitPlot.py -i shapes_m_vis_prefit.root -b htt_${ch}_100_13p6TeV --prefit --x_title "m_{vis} (GeV)"; done
+```

@@ -154,6 +154,8 @@ if __name__ == "__main__":
                         help='Output directory for the plots')
     parser.add_argument('--prefit', action='store_true',
                         help='prefit_plot')
+    parser.add_argument('--x_title', default=None,
+                        help='Custom x-axis title (optional)')
 
     args = parser.parse_args()
 
@@ -189,7 +191,7 @@ if __name__ == "__main__":
         ch_label = 'a_{1}^{3pr}a_{1}^{3pr}'
     elif 'tt_11' in bin_name:
         ch_label = 'a_{1}^{1pr}a_{1}^{3pr}'
-    elif 'tt_10' in bin_name:
+    elif 'tt_10_' in bin_name:
         ch_label = '#pi a_{1}^{1pr}'
     elif 'tt_7' in bin_name:
         ch_label = '#pi#rho'
@@ -219,12 +221,13 @@ if __name__ == "__main__":
         ch_label = '#mua_{1}^{3pr}'
     elif 'mt_4' in bin_name:
         ch_label = '#mu#pi'
-    elif 'tt_1' in bin_name or 'tt_2' in bin_name:
+    elif 'tt_1' in bin_name or 'tt_2' in bin_name or 'tt_100' in bin_name:
         ch_label = '#tau_{h}#tau_{h}'
-    elif 'mt_1' in bin_name or 'mt_2' in bin_name:
+    elif 'mt_1' in bin_name or 'mt_2' in bin_name or 'mt_100' in bin_name:
         ch_label = '#mu#tau_{h}'
-    elif 'et_1' in bin_name or 'et_2' in bin_name:
+    elif 'et_1' in bin_name or 'et_2' in bin_name or 'et_100' in bin_name:
         ch_label = 'e#tau_{h}'
+
     if '_tt_8' in bin_name:
         ch_bins = ['(BDT 0.33-0.7)', '(BDT 0.7-0.8)', '(BDT 0.8-1.0)']
     elif '_tt_' in bin_name:
@@ -243,15 +246,21 @@ if __name__ == "__main__":
     autoblind = args.autoblind
     norm_bins = args.norm_bins
 
+    is_1d_bin = bin_name in ['htt_mt_1_13p6TeV', 'htt_mt_2_13p6TeV', 'htt_et_1_13p6TeV', 'htt_et_2_13p6TeV', 'htt_tt_1_13p6TeV', 'htt_tt_2_13p6TeV',
+    'htt_tt_100_13p6TeV','htt_mt_100_13p6TeV','htt_et_100_13p6TeV']
+
+    is_control_bin = bin_name in ['htt_tt_100_13p6TeV','htt_mt_100_13p6TeV','htt_et_100_13p6TeV']
+
+
     signal_scale = 1.0
+    if is_control_bin:
+        signal_scale = 20.0
     
     if norm_bins:
         y_title = 'Events / bin width'
     else: 
         y_title = 'Events'
     
-    is_1d_bin = bin_name in ['htt_mt_1_13p6TeV', 'htt_mt_2_13p6TeV', 'htt_et_1_13p6TeV', 'htt_et_2_13p6TeV', 'htt_tt_1_13p6TeV', 'htt_tt_2_13p6TeV']
-
     if is_1d_bin:
         ratio_range = '0.75,1.25'
     else:
@@ -271,6 +280,9 @@ if __name__ == "__main__":
         x_title = 'Bin number'
         logy = True
         extra_pad = 0.5
+
+    if args.x_title:
+        x_title = args.x_title
     
     canv = ROOT.TCanvas()    
     pads=plot.TwoPadSplit(0.35,0.01,0.01)
@@ -342,24 +354,27 @@ if __name__ == "__main__":
         datahist.Scale(1.0,"width")
     
     if args.prefit:
+        h_label = "H#rightarrow#tau#tau (#alpha^{H#tau#tau}=0^{#circ})"
+        if is_control_bin:
+            h_label = "H#rightarrow#tau#tau"
         background_schemes = {
             'et':[
                     backgroundComp("Others",["ZL","VVT","TTT"],ROOT.TColor.GetColor(100,192,232)), ###TODO changed this to TT once the template is named correctly!!!
-                    backgroundComp("Jet#rightarrow#tau_{h} fakes",["JetFakes"],ROOT.TColor.GetColor(160,193,114)),
+                    backgroundComp("Jet#rightarrow#tau_{h}",["JetFakes"],ROOT.TColor.GetColor(160,193,114)),
                     backgroundComp("Z#rightarrow#tau#tau",["ZTT"],ROOT.TColor.GetColor(255,169,14)),
-                    backgroundComp("H#rightarrow#tau#tau (#alpha^{H#tau#tau}=0^{#circ})",["TotalSig"],ROOT.TColor.GetColor(51,51,230)),
+                    backgroundComp(f"{h_label}",["TotalSig"],ROOT.TColor.GetColor(51,51,230)),
                     ],
             'mt':[
                     backgroundComp("Others",["ZL","VVT","TTT"],ROOT.TColor.GetColor(100,192,232)), ###TODO changed this to TT once the template is named correctly!!!
-                    backgroundComp("Jet#rightarrow#tau_{h} fakes",["JetFakes"],ROOT.TColor.GetColor(160,193,114)),
+                    backgroundComp("Jet#rightarrow#tau_{h}",["JetFakes"],ROOT.TColor.GetColor(160,193,114)),
                     backgroundComp("Z#rightarrow#tau#tau",["ZTT"],ROOT.TColor.GetColor(255,169,14)),
-                    backgroundComp("H#rightarrow#tau#tau (#alpha^{H#tau#tau}=0^{#circ})",["TotalSig"],ROOT.TColor.GetColor(51,51,230)),
+                    backgroundComp(f"{h_label}",["TotalSig"],ROOT.TColor.GetColor(51,51,230)),
                     ],
             'tt':[
                     backgroundComp("Others",["ZL","VVT","TTT"],ROOT.TColor.GetColor(100,192,232)),
-                    backgroundComp("Jet#rightarrow#tau_{h} fakes",['JetFakes','JetFakesSublead'],ROOT.TColor.GetColor(160,193,114)),
+                    backgroundComp("Jet#rightarrow#tau_{h}",['JetFakes','JetFakesSublead'],ROOT.TColor.GetColor(160,193,114)),
                     backgroundComp("Z#rightarrow#tau#tau",["ZTT"],ROOT.TColor.GetColor(255,169,14)),
-                    backgroundComp("H#rightarrow#tau#tau (#alpha^{H#tau#tau}=0^{#circ})",["TotalSig"],ROOT.TColor.GetColor(51,51,230)),
+                    backgroundComp(f"{h_label}",["TotalSig"],ROOT.TColor.GetColor(51,51,230)),
                     ],
         }
     else:
@@ -432,7 +447,14 @@ if __name__ == "__main__":
         sighist_ps.Scale(signal_scale)
         signal_stack.Add(sighist_ps)
     
-    axish = createAxisHists(2,bkghist,bkghist.GetXaxis().GetXmin(),bkghist.GetXaxis().GetXmax()-0.01)
+    x_min = bkghist.GetXaxis().GetXmin()
+    if is_control_bin:
+        # check if any of the first bins are empty and adjuts x_min if so
+        for i in range(1, bkghist.GetNbinsX()+1):
+            if bkghist.GetBinContent(i) > 10**(-8):
+                x_min = bkghist.GetXaxis().GetBinLowEdge(i)
+                break
+    axish = createAxisHists(2,bkghist,x_min,bkghist.GetXaxis().GetXmax()-0.01)
     if not is_1d_bin:
         axish[0].SetMaximum(3*bkghist.GetMaximum())
     else:
@@ -476,9 +498,9 @@ if __name__ == "__main__":
     axish[1].Draw("axis")
     axish[1].SetMinimum(float(ratio_range.split(',')[0]))
     axish[1].SetMaximum(float(ratio_range.split(',')[1]))
-    axish[1].GetYaxis().SetTitle("Obs./Exp.")
+    axish[1].GetYaxis().SetTitle("Data/Exp.")
     # draw dashed line at 1
-    line = ROOT.TLine(axish[1].GetXaxis().GetXmin(), 1, axish[1].GetXaxis().GetXmax(), 1)
+    line = ROOT.TLine(x_min, 1, axish[1].GetXaxis().GetXmax(), 1)
     line.SetLineStyle(2)
     line.SetLineColor(ROOT.kBlack)
     line.Draw("same")
@@ -565,7 +587,15 @@ if __name__ == "__main__":
     extra='Preliminary'
     if is_1d_bin:
         plot.DrawCMSLogo(pads[0], 'CMS', extra, 0, 0.17, -0.0, 2.0, '', 0.85)
-        plot.DrawTitle(pads[0], ch_label + "   " + lumi, 3, textSize=0.6)
+        if is_control_bin: # fraf the label inside the frame on the top left for the control region to save space
+            ch_tex = ROOT.TLatex()
+            ch_tex.SetNDC()
+            ch_tex.SetTextFont(42)
+            ch_tex.SetTextSize(0.6 * pads[0].GetTopMargin())
+            ch_tex.SetTextAlign(11)
+            ch_tex.DrawLatex(0.15, 0.9, ch_label)
+            plot.DrawTitle(pads[0], lumi, 3, textSize=0.6)
+        else: plot.DrawTitle(pads[0], ch_label + "   " + lumi, 3, textSize=0.6)
     else:
         plot.DrawCMSLogo(pads[0], 'CMS', extra, 0, 0.075, -0.0, 2.0, '', 0.6)
         DrawTitleUnrolled(pads[0], ch_label + " "*50 + lumi, 3, scale=0.7)
@@ -577,7 +607,7 @@ if __name__ == "__main__":
     legend.SetTextFont(42)
     legend.SetFillStyle(0)
     
-    legend.AddEntry(datahist,"Observed","PEl")
+    legend.AddEntry(datahist,"Data","PEl")
     # loop backwards over the stack_histos by index to add them in the right order
     for legi in range(len(stack_histos)-1,-1,-1):
         hists = stack_histos[legi]
@@ -586,7 +616,9 @@ if __name__ == "__main__":
     legend.AddEntry(bkghist,"Uncertainty","f")
     # comment to remove signal
     if args.prefit:
-        legend.AddEntry(sighist,"H#rightarrow#tau#tau (#alpha^{H#tau#tau}=0^{#circ})","l")
+        if is_control_bin:
+            legend.AddEntry(sighist,f"H#rightarrow#tau#tau #times {signal_scale:.0f}", "l")
+        else: legend.AddEntry(sighist,"H#rightarrow#tau#tau (#alpha^{H#tau#tau}=0^{#circ})","l")
     if sighist_ps:
         legend.AddEntry(sighist_ps,"H#rightarrow#tau#tau (#alpha^{H#tau#tau}=90^{#circ})","l")
     legend.Draw("same")
