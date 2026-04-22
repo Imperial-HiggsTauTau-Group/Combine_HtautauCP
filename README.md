@@ -465,5 +465,5 @@ python3 scripts/plot1DScan.py --main yr18_groups/cmb/higgsCombine.alpha.YR18.Mul
 Then make plot using:
 
 ```
-python3 scripts/plot_hl_extrap.py --run3_systs alpha_extrap_run3systs.root --stat_only alpha_extrap_nosysts.root --yr18_systs alpha_extrap_yr18systs.root --directory ./
+python3 scripts/plot_hl_extrap.py --run3_systs alpha_extrap_run3systs.root --stat_only alpha_extrap_nosysts.root  --directory ./
 ```

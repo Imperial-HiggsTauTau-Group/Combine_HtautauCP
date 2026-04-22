@@ -123,14 +123,14 @@ if args.run3_systs is not None:
     # intersections and 1 and 2 sigma
     if args.yr18_systs is not None:
         if int_1sig_exp_exists:
-            label_string_run3_systs = rf"With Run-3 syst. uncert.: $\alpha^{{H\tau\tau}} = {round(np.abs(bestfit_exp),0):.0f} \pm {round((np.abs(bestfit_exp-int_1sig_exp[1])+np.abs(bestfit_exp-int_1sig_exp[0]))/2,0):.0f} ^\circ$"
+            label_string_run3_systs = rf"With Run-3 syst. uncert.: $\alpha^{{H\tau\tau}} = ({round(np.abs(bestfit_exp),0):.0f} \pm {round((np.abs(bestfit_exp-int_1sig_exp[1])+np.abs(bestfit_exp-int_1sig_exp[0]))/2,0):.0f})) ^\circ$"
         else:
-            label_string_run3_systs = rf"With Run-3 syst. uncert.: $\alpha^{{H\tau\tau}} = {round(np.abs(bestfit_exp),0):.0f} ^\circ$"
+            label_string_run3_systs = rf"With Run-3 syst. uncert.: $\alpha^{{H\tau\tau}} = ({round(np.abs(bestfit_exp),0):.0f}) ^\circ$"
     else:
         if int_1sig_exp_exists:
-            label_string_run3_systs = rf"Stat. + syst. uncerts.: $\alpha^{{H\tau\tau}} = {round(bestfit_exp,0):.0f} \pm {round((np.abs(bestfit_exp-int_1sig_exp[1])+np.abs(bestfit_exp-int_1sig_exp[0]))/2,0):.0f} ^\circ$"
+            label_string_run3_systs = rf"Stat. + syst. uncerts.: $\alpha^{{H\tau\tau}} = ({round(bestfit_exp,0):.0f} \pm {round((np.abs(bestfit_exp-int_1sig_exp[1])+np.abs(bestfit_exp-int_1sig_exp[0]))/2,0):.0f}) ^\circ$"
         else:
-            label_string_run3_systs = rf"Stat. + syst. uncerts.: $\alpha^{{H\tau\tau}} = {round(bestfit_exp,0):.0f} ^\circ$"
+            label_string_run3_systs = rf"Stat. + syst. uncerts.: $\alpha^{{H\tau\tau}} = ({round(bestfit_exp,0):.0f}) ^\circ$"
 
 
 if args.yr18_systs is not None:
@@ -138,9 +138,9 @@ if args.yr18_systs is not None:
     print(f"Best fit yr18_systs alpha: {bestfit_yr18_systs}")
     # intersections and 1 and 2 sigma
     if int_1sig_yr18_systs_exists:
-        label_string_yr18_systs = rf"With YR18 syst. uncert.: $\alpha^{{H\tau\tau}} = {round(np.abs(bestfit_yr18_systs),0):.0f} \pm {round((np.abs(bestfit_yr18_systs-int_1sig_yr18_systs[1])+np.abs(bestfit_yr18_systs-int_1sig_yr18_systs[0]))/2,0):.0f} ^\circ$"
+        label_string_yr18_systs = rf"With YR18 syst. uncert.: $\alpha^{{H\tau\tau}} = ({round(np.abs(bestfit_yr18_systs),0):.0f} \pm {round((np.abs(bestfit_yr18_systs-int_1sig_yr18_systs[1])+np.abs(bestfit_yr18_systs-int_1sig_yr18_systs[0]))/2,0):.0f}) ^\circ$"
     else:
-        label_string_yr18_systs = rf"With YR18 syst. uncert.: $\alpha^{{H\tau\tau}} = {round(np.abs(bestfit_yr18_systs),0):.0f}$ ^\circ"
+        label_string_yr18_systs = rf"With YR18 syst. uncert.: $\alpha^{{H\tau\tau}} = ({round(np.abs(bestfit_yr18_systs),0):.0f}$) ^\circ"
 
 if args.stat_only is not None:
     # add NLL curve
@@ -149,9 +149,9 @@ if args.stat_only is not None:
 
     # intersections and 1 and 2 sigma
     if int_1sig_obs_exists:
-        label_string_stat_only = rf"Stat. uncert. only: $\alpha^{{H\tau\tau}} = {round(bestfit_obs,0):.0f} \pm {round((np.abs(bestfit_obs-int_1sig_obs[1])+np.abs(bestfit_obs-int_1sig_obs[0]))/2,0):.0f} ^\circ$"
+        label_string_stat_only = rf"Stat. uncert. only: $\alpha^{{H\tau\tau}} = ({round(bestfit_obs,0):.0f} \pm {round((np.abs(bestfit_obs-int_1sig_obs[1])+np.abs(bestfit_obs-int_1sig_obs[0]))/2,0):.0f}) ^\circ$"
     else:
-        label_string_stat_only = rf"Stat. uncert. only: $\alpha^{{H\tau\tau}} = {round(bestfit_obs,0):.0f} ^\circ$"
+        label_string_stat_only = rf"Stat. uncert. only: $\alpha^{{H\tau\tau}} = ({round(bestfit_obs,0):.0f}) ^\circ$"
 
 if args.stat_only is not None:
     ax.plot(alpha_stat_only, nll_obs, linestyle='-', color='red', label=label_string_stat_only)
@@ -178,7 +178,8 @@ plt.legend(frameon=False, loc='upper center', fontsize=15.5)
 #hep.cms.label(ax=ax, label="Preliminary", data=True, lumi="Projection, 3", com='13.6', fontsize=18)
 hep.cms.label(
     ax=ax,
-    label="Preliminary",
+    #label="Preliminary",
+    label="",
     data=True,
     rlabel=r"$Projection, 3\,\mathrm{ab}^{-1}$ ($13.6$ TeV)",
     fontsize=18,
