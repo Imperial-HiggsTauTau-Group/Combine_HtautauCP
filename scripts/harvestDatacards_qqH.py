@@ -71,15 +71,24 @@ else:
     cats['tt'] = [
             (1, 'tt_mva_tau'),
             (2, 'tt_mva_fake'),
-            (3, 'tt_higgs_rhorho'),
-            (4, 'tt_higgs_rhoa11pr'),
-            (5, 'tt_higgs_rhoa1'),
-            (6, 'tt_higgs_a1a1'),
-            (7, 'tt_higgs_pirho'),
-            (8, 'tt_higgs_pipi'),
-            (9, 'tt_higgs_pia1'),
-            (10,'tt_higgs_pia11pr'),
-            (11,'tt_higgs_a11pra1'),
+            (3, 'tt_ggH_rhorho'),
+            (4, 'tt_ggH_rhoa11pr'),
+            (5, 'tt_ggH_rhoa1'),
+            (6, 'tt_ggH_a1a1'),
+            (7, 'tt_ggH_pirho'),
+            (8, 'tt_ggH_pipi'),
+            (9, 'tt_ggH_pia1'),
+            (10,'tt_ggH_pia11pr'),
+            (11,'tt_ggH_a11pra1'),
+            (12, 'tt_qqH_rhorho'),
+            (13, 'tt_qqH_rhoa11pr'),
+            (14, 'tt_qqH_rhoa1'),
+            (15, 'tt_qqH_a1a1'),
+            (16, 'tt_qqH_pirho'),
+            (17, 'tt_qqH_pipi'),
+            (18, 'tt_qqH_pia1'),
+            (19,'tt_qqH_pia11pr'),
+            (20,'tt_qqH_a11pra1'),
             ]
 
     cats['mt'] = [
@@ -118,25 +127,29 @@ for chn in chans:
 # cb = AddSMRun3Systematics(cb)
 
 if merge_mode == 2 or merge_mode == 3:
-    flat_cats = ['tt_higgs_rhorho', 'tt_higgs_rhoa11pr', 'tt_higgs_rhoa1', 'tt_higgs_pirho', 'tt_higgs_pia11pr', 'tt_higgs_a11pra1',
+    flat_cats = ['tt_ggH_rhorho', 'tt_ggH_rhoa11pr', 'tt_ggH_rhoa1', 'tt_ggH_pirho', 'tt_ggH_pia11pr', 'tt_ggH_a11pra1',
+                 'tt_qqH_rhorho', 'tt_qqH_rhoa11pr', 'tt_qqH_rhoa1', 'tt_qqH_pirho', 'tt_qqH_pia11pr', 'tt_qqH_a11pra1',
                  'mt_higgs_murho_mTLt65', 'mt_higgs_mua11pr_mTLt65',
                  'et_higgs_erho_mTLt65', 'et_higgs_ea11pr_mTLt65'
     ]
-    sym_cats = ['tt_higgs_a1a1', 'tt_higgs_pipi', 'tt_higgs_pia1',
+    sym_cats = ['tt_ggH_a1a1', 'tt_ggH_pipi', 'tt_ggH_pia1',
+                'tt_qqH_a1a1', 'tt_qqH_pipi', 'tt_qqH_pia1',
                 'mt_higgs_mupi_mTLt65', 'mt_higgs_mua1_mTLt65',
                 'et_higgs_epi_mTLt65', 'et_higgs_ea1_mTLt65'
     ]
 elif merge_mode == 1: 
     flat_cats = []
-    sym_cats = ['tt_higgs_rhorho', 'tt_higgs_rhoa11pr', 'tt_higgs_rhoa1', 'tt_higgs_pirho', 'tt_higgs_pia11pr', 'tt_higgs_a11pra1', 'tt_higgs_a1a1', 'tt_higgs_pipi', 'tt_higgs_pia1',
+    sym_cats = ['tt_ggH_rhorho', 'tt_ggH_rhoa11pr', 'tt_ggH_rhoa1', 'tt_ggH_pirho', 'tt_ggH_pia11pr', 'tt_ggH_a11pra1', 'tt_ggH_a1a1', 'tt_ggH_pipi', 'tt_ggH_pia1',
+                'tt_qqH_rhorho', 'tt_qqH_rhoa11pr', 'tt_qqH_rhoa1', 'tt_qqH_pirho', 'tt_qqH_pia11pr', 'tt_qqH_a11pra1', 'tt_qqH_a1a1', 'tt_qqH_pipi', 'tt_qqH_pia1',
                 'mt_higgs_murho_mTLt65', 'mt_higgs_mua11pr_mTLt65', 'mt_higgs_mupi_mTLt65', 'mt_higgs_mua1_mTLt65',
                 'et_higgs_erho_mTLt65', 'et_higgs_ea11pr_mTLt65', 'et_higgs_epi_mTLt65', 'et_higgs_ea1_mTLt65'
     ]
 elif merge_mode == 4:
     # most extreme case where all categories and background processes are flattened
-    flat_cats = ['tt_higgs_rhorho', 'tt_higgs_rhoa11pr', 'tt_higgs_rhoa1', 'tt_higgs_pirho', 'tt_higgs_pia11pr', 'tt_higgs_a11pra1', 'tt_higgs_a1a1', 'tt_higgs_pipi', 'tt_higgs_pia1',
-                 'mt_mva_higgs_murho_mTLt65', 'mt_mva_higgs_mua11pr_mTLt65', 'mt_mva_higgs_mupi_mTLt65', 'mt_mva_higgs_mua1_mTLt65',
-                 'et_mva_higgs_erho_mTLt65', 'et_mva_higgs_ea11pr_mTLt65', 'et_mva_higgs_epi_mTLt65', 'et_mva_higgs_ea1_mTLt65'
+    flat_cats = ['tt_ggH_rhorho', 'tt_ggH_rhoa11pr', 'tt_ggH_rhoa1', 'tt_ggH_pirho', 'tt_ggH_pia11pr', 'tt_ggH_a11pra1', 'tt_ggH_a1a1', 'tt_ggH_pipi', 'tt_ggH_pia1',
+                 'tt_qqH_rhorho', 'tt_qqH_rhoa11pr', 'tt_qqH_rhoa1', 'tt_qqH_pirho', 'tt_qqH_pia11pr', 'tt_qqH_a11pra1', 'tt_qqH_a1a1', 'tt_qqH_pipi', 'tt_qqH_pia1',
+                 'mt_higgs_murho_mTLt65', 'mt_higgs_mua11pr_mTLt65', 'mt_higgs_mupi_mTLt65', 'mt_higgs_mua1_mTLt65',
+                 'et_higgs_erho_mTLt65', 'et_higgs_ea11pr_mTLt65', 'et_higgs_epi_mTLt65', 'et_higgs_ea1_mTLt65'
     ]
     sym_cats = [
     ]

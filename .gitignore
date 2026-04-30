@@ -21,4 +21,6 @@ __init__.py
 *.png
 *.pdf
 
+outputs
+
 docs/html

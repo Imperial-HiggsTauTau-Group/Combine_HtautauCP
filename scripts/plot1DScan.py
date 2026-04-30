@@ -199,6 +199,8 @@ parser.add_argument('--logo_sub', default='Work in progress')
 parser.add_argument('--x_title', default='#alpha^{H#tau#tau} (#circ)')
 parser.add_argument('--no_title', action='store_true', help='do not draw the luminosity title')
 parser.add_argument('--combination', action='store_true', help='run2 run3 combination')
+parser.add_argument('--luminosity', default=None, help='custom luminosity to display in title, e.g. "35.9 fb^{-1}"')
+parser.add_argument('--channel', default=None, help='channel to determine label if not in output name')
 args = parser.parse_args()
 if args.pub: args.no_input_label = True
 
@@ -302,52 +304,61 @@ main_scan['func'].SetLineColor(ROOT.TColor.GetColor("#000099"))
 #main_scan['func'].Draw('same') # uncomment to draw spline
 main_scan['graph'].Draw('PSAME')
 
-if 'cmb' in args.output:
-    ch_label = '#tau_{h}#tau_{h}/#mu#tau_{h}/e#tau_{h}'
-elif 'tt' in args.output:
-    ch_label = '#tau_{h}#tau_{h}'
-elif 'mt' in args.output:
-    ch_label = '#mu#tau_{h}'
-elif 'et' in args.output:
-    ch_label = 'e#tau_{h}'
-elif 'a1a1' in args.output:
-    ch_label = 'a_{1}^{3pr}a_{1}^{3pr}'
-elif 'a11pra1' in args.output:
-    ch_label = 'a_{1}^{1pr}a_{1}^{3pr}'
-elif 'pia11pr' in args.output:
-    ch_label = '#pi a_{1}^{1pr}'
-elif 'pirho' in args.output:
-    ch_label = '#pi #rho'
-elif 'rhoa11pr' in args.output:
-    ch_label = '#rho a_{1}^{1pr}/a_{1}^{1pr}a_{1}^{1pr}'
-elif 'pia1' in args.output:
-    ch_label = '#pi a_{1}^{3pr}'
-elif 'pipi' in args.output:
-    ch_label = '#pi #pi'
-elif 'rhorho' in args.output:
-    ch_label = '#rho #rho'
-elif 'rhoa1' in args.output:
-    ch_label = '#rho a_{1}^{3pr}'
-elif 'ea11pr' in args.output:
-    ch_label = 'e a_{1}^{1pr}'
-elif 'erho' in args.output:
-    ch_label = 'e #rho'
-elif 'ea1' in args.output:
-    ch_label = 'e a_{1}^{3pr}'
-elif 'epi' in args.output:
-    ch_label = 'e #pi'
-elif 'mua11pr' in args.output:
-    ch_label = '#mu a_{1}^{1pr}'
-elif 'murho' in args.output:
-    ch_label = '#mu #rho'
-elif 'mua1' in args.output:
-    ch_label = '#mu a_{1}^{3pr}'
-elif 'mupi' in args.output:
-    ch_label = '#mu #pi'
+if args.channel is not None:
+    if args.channel == 'tt':
+        ch_label = '#tau_{h}#tau_{h}'
+    elif args.channel == 'mt':
+        ch_label = '#mu#tau_{h}'
+    elif args.channel == 'et':
+        ch_label = 'e#tau_{h}'
+    elif args.channel == 'all':
+        ch_label = '#tau_{h}#tau_{h}/#mu#tau_{h}/e#tau_{h}'
+
 else:
-    ch_label = ''
-
-
+    if 'cmb' in args.output:
+        ch_label = '#tau_{h}#tau_{h}/#mu#tau_{h}/e#tau_{h}'
+    elif 'tt' in args.output:
+        ch_label = '#tau_{h}#tau_{h}'
+    elif 'mt' in args.output:
+        ch_label = '#mu#tau_{h}'
+    elif 'et' in args.output:
+        ch_label = 'e#tau_{h}'
+    elif 'a1a1' in args.output:
+        ch_label = 'a_{1}^{3pr}a_{1}^{3pr}'
+    elif 'a11pra1' in args.output:
+        ch_label = 'a_{1}^{1pr}a_{1}^{3pr}'
+    elif 'pia11pr' in args.output:
+        ch_label = '#pi a_{1}^{1pr}'
+    elif 'pirho' in args.output:
+        ch_label = '#pi #rho'
+    elif 'rhoa11pr' in args.output:
+        ch_label = '#rho a_{1}^{1pr}/a_{1}^{1pr}a_{1}^{1pr}'
+    elif 'pia1' in args.output:
+        ch_label = '#pi a_{1}^{3pr}'
+    elif 'pipi' in args.output:
+        ch_label = '#pi #pi'
+    elif 'rhorho' in args.output:
+        ch_label = '#rho #rho'
+    elif 'rhoa1' in args.output:
+        ch_label = '#rho a_{1}^{3pr}'
+    elif 'ea11pr' in args.output:
+        ch_label = 'e a_{1}^{1pr}'
+    elif 'erho' in args.output:
+        ch_label = 'e #rho'
+    elif 'ea1' in args.output:
+        ch_label = 'e a_{1}^{3pr}'
+    elif 'epi' in args.output:
+        ch_label = 'e #pi'
+    elif 'mua11pr' in args.output:
+        ch_label = '#mu a_{1}^{1pr}'
+    elif 'murho' in args.output:
+        ch_label = '#mu #rho'
+    elif 'mua1' in args.output:
+        ch_label = '#mu a_{1}^{3pr}'
+    elif 'mupi' in args.output:
+        ch_label = '#mu #pi'
+    else:
+        ch_label = ''
 
 if args.POI == 'alpha':
   import scipy.stats
@@ -528,6 +539,8 @@ plot.DrawCMSLogo(pads[0], args.logo, args.logo_sub, 10, 0.035, 0.035, 1.2, cmsTe
 
 if args.combination:
     if not args.no_title: plot.DrawTitle(pads[0], '200 fb^{-1} (13 and 13.6 TeV)', 3) # combination
+elif args.luminosity is not None:
+    if not args.no_title: plot.DrawTitle(pads[0], '%s fb^{-1} (13.6 TeV)' % args.luminosity, 3) # custom luminosity
 else:
     if not args.no_title: plot.DrawTitle(pads[0], '62.4 fb^{-1} (13.6 TeV)', 3) # early Run 3
 # if not args.no_title: plot.DrawTitle(pads[0], '58 fb^{-1} (13 TeV)', 3) # 16+17+18
