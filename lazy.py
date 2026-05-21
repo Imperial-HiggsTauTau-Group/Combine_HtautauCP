@@ -5,14 +5,15 @@ import os
 import glob
 import shutil
 
-def update_config(input_folder, output_folder):
+
+def update_config(input_folder, output_folder, merge_mode):
     with open('configs/harvestDatacards.yml', 'r') as file:
         config = yaml.safe_load(file)
 
     config['input_folder'] = input_folder
     config['output_folder'] = output_folder
     config['channels'] = "tt" # Can be changed to "all" if needed
-    config['merge_mode'] = 0 # Change to 1 for symmetrising 
+    config['merge_mode'] = merge_mode # 1 for symmetrised templates, 0 for non-symmetrised templates 
 
     with open('configs/harvestDatacards.yml', 'w') as file:
         yaml.dump(config, file, sort_keys=False)
@@ -26,11 +27,18 @@ def main():
     parser.add_argument("--muvsmu", action='store_true', help="Run mu ggH vs mu V scan")
     parser.add_argument("--qqH", action='store_true', help="Run 2 signal category datacard harvesting")
     parser.add_argument("--lumi", default=None, help="Luminosity to use in datacards (e.g. 138.0)")
-    parser.add_argument("--channel", default=None, help="Channel to determine label if not in output name")
+    parser.add_argument("--channel", required=False, help="Channel to determine label if not in output name")
+    parser.add_argument("--symmetrise", action='store_true', help="Produces symmetrised templates")
     args = parser.parse_args()
 
-    # Update the configuration file with the provided paths
-    update_config(args.input, args.output)
+    if args.symmetrise:
+        subprocess.run([
+            "python3", "scripts/convertCards.py",
+            "-f", f"{args.input}/added_histo.root"
+        ], check=True)
+        update_config(args.input, args.output, merge_mode=1)
+    else:
+        update_config(args.input, args.output, merge_mode=0)
 
     # Produce text datacards
     if args.qqH:
@@ -45,12 +53,13 @@ def main():
         ], check=True)
 
     # Creating workspaces
+    sub_dir = "cmb" if not args.channel else args.channel
     subprocess.run([
         "combineTool.py", 
         "-m", "125",
         "-M", "T2W",
         "-P", "CombineHarvester.Combine_HtautauCP.CPMixtureDecays:CPMixtureDecays",
-        "-i", f"{args.output}/cmb",
+        "-i", f"{args.output}/{sub_dir}",
         "-o", "ws.root",
         "--parallel", "8"
     ], check=True)
@@ -66,7 +75,7 @@ def main():
             "--setParameterRanges", "alpha=-90,90",
             "--points", "21",
             "--redefineSignalPOIs", "alpha",
-            "-d", f"{args.output}/cmb/ws.root",
+            "-d", f"{args.output}/{sub_dir}/ws.root",
             "--algo", "grid",
             "-t", "-1",
             "--there",
@@ -77,9 +86,9 @@ def main():
         # Make plot of alpha scan
         command = [
             "python3", "scripts/plot1DScan.py",
-            "--main", f"{args.output}/cmb/higgsCombine.alpha.MultiDimFit.mH125.root",
+            "--main", f"{args.output}/{sub_dir}/higgsCombine.alpha.MultiDimFit.mH125.root",
             "--POI", "alpha",
-            "--output", f"{args.output}/cmb/alpha_cmb",
+            "--output", f"{args.output}/{sub_dir}/alpha_{sub_dir}",
             "--no-numbers",
             "--no-box",
             "--x-min=-90",
@@ -99,8 +108,8 @@ def main():
         
     if args.muvsmu:
 
-        cmb_dir = os.path.abspath(os.path.join(args.output, "cmb"))
-        ws_path = os.path.join(cmb_dir, "ws.root")
+        out_dir = os.path.abspath(os.path.join(args.output, sub_dir))
+        ws_path = os.path.join(out_dir, "ws.root")
         if not os.path.exists(ws_path):
             raise FileNotFoundError(f"Workspace not found at {ws_path}")
 
@@ -129,57 +138,57 @@ def main():
             "--task-name", "condor-run3-muVsmu",
             "--sub-opts=+MaxRuntime=10799",
             "--split-points", "5"
-        ], cwd=cmb_dir, check=True)
+        ], cwd=out_dir, check=True)
 
         # Wait for condor jobs to finish (this is a simple approach, can be improved by checking job status)
         print("Waiting for condor jobs to finish...")
-        log_files = sorted(glob.glob(os.path.join(cmb_dir, "*.log")))
+        log_files = sorted(glob.glob(os.path.join(out_dir, "*.log")))
         for log_file in log_files:
             subprocess.run(["condor_wait", log_file], check=True)
 
         # Combine the outputs from condor jobs
-        point_files = sorted(glob.glob(os.path.join(cmb_dir, "higgsCombine.muVsmu.POINTS*.MultiDimFit.mH125.root")))
+        point_files = sorted(glob.glob(os.path.join(out_dir, "higgsCombine.muVsmu.POINTS*.MultiDimFit.mH125.root")))
         if point_files:
             subprocess.run([
                 "hadd",
                 "-v", "1",
                 "-f", "higgsCombine.muVsmu.MultiDimFit.mH125",
                 *point_files
-            ], cwd=cmb_dir, check=True)
+            ], cwd=out_dir, check=True)
         else:
             print("No POINTS files found for hadd.")
 
         # Clean up condor output
-        condor_dir = os.path.join(cmb_dir, ".condor")
-        condor_log_dir = os.path.join(cmb_dir, ".condor", "log")
-        condor_out_dir = os.path.join(cmb_dir, ".condor", "out")
-        condor_err_dir = os.path.join(cmb_dir, ".condor", "err")
+        condor_dir = os.path.join(out_dir, ".condor")
+        condor_log_dir = os.path.join(out_dir, ".condor", "log")
+        condor_out_dir = os.path.join(out_dir, ".condor", "out")
+        condor_err_dir = os.path.join(out_dir, ".condor", "err")
         os.makedirs(condor_dir, exist_ok=True)
         os.makedirs(condor_log_dir, exist_ok=True)
         os.makedirs(condor_out_dir, exist_ok=True)
         os.makedirs(condor_err_dir, exist_ok=True)
 
-        for path in glob.glob(os.path.join(cmb_dir, "*.sh")):
+        for path in glob.glob(os.path.join(out_dir, "*.sh")):
             shutil.move(path, os.path.join(condor_dir, os.path.basename(path)))
-        for path in glob.glob(os.path.join(cmb_dir, "*.sub")):
+        for path in glob.glob(os.path.join(out_dir, "*.sub")):
             shutil.move(path, os.path.join(condor_dir, os.path.basename(path)))
-        for path in glob.glob(os.path.join(cmb_dir, "*.log")):
+        for path in glob.glob(os.path.join(out_dir, "*.log")):
             shutil.move(path, os.path.join(condor_log_dir, os.path.basename(path)))
-        for path in glob.glob(os.path.join(cmb_dir, "*.out")):
+        for path in glob.glob(os.path.join(out_dir, "*.out")):
             shutil.move(path, os.path.join(condor_out_dir, os.path.basename(path)))
-        for path in glob.glob(os.path.join(cmb_dir, "*.err")):
+        for path in glob.glob(os.path.join(out_dir, "*.err")):
             shutil.move(path, os.path.join(condor_err_dir, os.path.basename(path)))
 
         # Clean up individual point outputs
-        multidimfit_dir = os.path.join(cmb_dir, ".MultiDimFit")
+        multidimfit_dir = os.path.join(out_dir, ".MultiDimFit")
         os.makedirs(multidimfit_dir, exist_ok=True)
-        for path in glob.glob(os.path.join(cmb_dir, "higgsCombine.muVsmu.POINTS.*")):
+        for path in glob.glob(os.path.join(out_dir, "higgsCombine.muVsmu.POINTS.*")):
             shutil.move(path, os.path.join(multidimfit_dir, os.path.basename(path)))
 
         # Make plot of mu ggH vs mu V scan
         subprocess.run([
             "python3", "scripts/plot_2D_scans.py",
-            "--file", f"{args.output}/cmb/higgsCombine.muVsmu.MultiDimFit.mH125",
+            "--file", f"{args.output}/{sub_dir}/higgsCombine.muVsmu.MultiDimFit.mH125",
             "--muvsmu"
         ], check=True)
 

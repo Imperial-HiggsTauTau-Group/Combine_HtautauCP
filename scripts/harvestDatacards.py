@@ -147,11 +147,16 @@ else:
 ## Populating Observation, Process and Systematic entries in the harvester instance
 
 for chn in chans:
-    if Run2: filename = '%s/htt_%s.inputs-sm-13TeV.root' % (input_folder,chn)
+    # if Run2: filename = '%s/htt_%s.inputs-sm-13TeV.root' % (input_folder,chn)
     # elif chn == 'tt': filename = '%s/added_histo-mergeXbins.root' % (input_folder)
-    #elif chn == 'mt': filename = '%s/mt_2022_2023_merged-mergeXbins.root' % (input_folder)
-    else: filename = '%s/added_histo.root' % (input_folder)
+    # elif chn == 'mt': filename = '%s/mt_2022_2023_merged-mergeXbins.root' % (input_folder)
+    # else: filename = '%s/added_histo.root' % (input_folder)
+    if merge_mode == 0:
+        filename = f"{input_folder}/added_histo.root"
+    elif merge_mode == 1:
+        filename = f"{input_folder}/added_histo-mergeXbins.root"
     print (">>>   file %s" % (filename))
+    
     cb.cp().channel([chn]).backgrounds().process([]).era(['13p6TeV']).ExtractShapes(filename, "$BIN/$PROCESS", "$BIN/$PROCESS_$SYSTEMATIC") # add data shapes
     if merge_mode == 0: 
         cb.cp().channel([chn]).backgrounds().era(['13p6TeV']).ExtractShapes(filename, "$BIN/$PROCESS", "$BIN/$PROCESS_$SYSTEMATIC")

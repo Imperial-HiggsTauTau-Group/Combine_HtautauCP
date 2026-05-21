@@ -1,4 +1,4 @@
-input_folder: /vols/cms/dmw25/TIDAL/Draw/plots/tt_2024/Combined
-output_folder: outputs/datacards/tt_2024
+input_folder: /vols/cms/dmw25/TIDAL/Draw/plots/tauID_studies_2024/Combined
+output_folder: outputs/datacards/setting_up_2024/NewBDT
 channels: tt
-merge_mode: 0
+merge_mode: 1
