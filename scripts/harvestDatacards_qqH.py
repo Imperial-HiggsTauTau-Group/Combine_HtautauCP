@@ -80,34 +80,24 @@ else:
             (9, 'tt_ggH_pia1'),
             (10,'tt_ggH_pia11pr'),
             (11,'tt_ggH_a11pra1'),
-            (12, 'tt_qqH_rhorho'),
-            (13, 'tt_qqH_rhoa11pr'),
-            (14, 'tt_qqH_rhoa1'),
-            (15, 'tt_qqH_a1a1'),
-            (16, 'tt_qqH_pirho'),
-            (17, 'tt_qqH_pipi'),
-            (18, 'tt_qqH_pia1'),
-            (19,'tt_qqH_pia11pr'),
-            (20,'tt_qqH_a11pra1'),
-            ]
+            (12, 'tt_VBF_rhorho'),
+            (13, 'tt_VBF_rhoa11pr'),
+            (14, 'tt_VBF_rhoa1'),
+            (15, 'tt_VBF_a1a1'),
+            (16, 'tt_VBF_pirho'),
+            (17, 'tt_VBF_pipi'),
+            (18, 'tt_VBF_pia1'),
+            (19,'tt_VBF_pia11pr'),
+            (20,'tt_VBF_a11pra1'),
+    ]
 
     cats['mt'] = [
-            (1, 'mt_mva_tau_mTLt65'),
-            (2, 'mt_mva_fake_mTLt65'),
-            (3, 'mt_higgs_murho_mTLt65'),
-            (4, 'mt_higgs_mupi_mTLt65'),
-            (5, 'mt_higgs_mua1_mTLt65'),
-            (6, 'mt_higgs_mua11pr_mTLt65'),
-            ]
+            # 4 class BDT not yet implemented for et/mt channels
+    ]
 
     cats['et'] = [
-            (1, 'et_mva_tau_mTLt65'),
-            (2, 'et_mva_fake_mTLt65'),
-            (3, 'et_higgs_erho_mTLt65'),
-            (4, 'et_higgs_epi_mTLt65'),
-            (5, 'et_higgs_ea1_mTLt65'),
-            (6, 'et_higgs_ea11pr_mTLt65'),
-            ]
+            # 4 class BDT not yet implemented for et/mt channels
+    ]
 
 # Create an empty CombineHarvester instance
 cb = ch.CombineHarvester()
@@ -128,26 +118,26 @@ for chn in chans:
 
 if merge_mode == 2 or merge_mode == 3:
     flat_cats = ['tt_ggH_rhorho', 'tt_ggH_rhoa11pr', 'tt_ggH_rhoa1', 'tt_ggH_pirho', 'tt_ggH_pia11pr', 'tt_ggH_a11pra1',
-                 'tt_qqH_rhorho', 'tt_qqH_rhoa11pr', 'tt_qqH_rhoa1', 'tt_qqH_pirho', 'tt_qqH_pia11pr', 'tt_qqH_a11pra1',
+                 'tt_VBF_rhorho', 'tt_VBF_rhoa11pr', 'tt_VBF_rhoa1', 'tt_VBF_pirho', 'tt_VBF_pia11pr', 'tt_VBF_a11pra1',
                  'mt_higgs_murho_mTLt65', 'mt_higgs_mua11pr_mTLt65',
                  'et_higgs_erho_mTLt65', 'et_higgs_ea11pr_mTLt65'
     ]
     sym_cats = ['tt_ggH_a1a1', 'tt_ggH_pipi', 'tt_ggH_pia1',
-                'tt_qqH_a1a1', 'tt_qqH_pipi', 'tt_qqH_pia1',
+                'tt_VBF_a1a1', 'tt_VBF_pipi', 'tt_VBF_pia1',
                 'mt_higgs_mupi_mTLt65', 'mt_higgs_mua1_mTLt65',
                 'et_higgs_epi_mTLt65', 'et_higgs_ea1_mTLt65'
     ]
 elif merge_mode == 1: 
     flat_cats = []
     sym_cats = ['tt_ggH_rhorho', 'tt_ggH_rhoa11pr', 'tt_ggH_rhoa1', 'tt_ggH_pirho', 'tt_ggH_pia11pr', 'tt_ggH_a11pra1', 'tt_ggH_a1a1', 'tt_ggH_pipi', 'tt_ggH_pia1',
-                'tt_qqH_rhorho', 'tt_qqH_rhoa11pr', 'tt_qqH_rhoa1', 'tt_qqH_pirho', 'tt_qqH_pia11pr', 'tt_qqH_a11pra1', 'tt_qqH_a1a1', 'tt_qqH_pipi', 'tt_qqH_pia1',
+                'tt_VBF_rhorho', 'tt_VBF_rhoa11pr', 'tt_VBF_rhoa1', 'tt_VBF_pirho', 'tt_VBF_pia11pr', 'tt_VBF_a11pra1', 'tt_VBF_a1a1', 'tt_VBF_pipi', 'tt_VBF_pia1',
                 'mt_higgs_murho_mTLt65', 'mt_higgs_mua11pr_mTLt65', 'mt_higgs_mupi_mTLt65', 'mt_higgs_mua1_mTLt65',
                 'et_higgs_erho_mTLt65', 'et_higgs_ea11pr_mTLt65', 'et_higgs_epi_mTLt65', 'et_higgs_ea1_mTLt65'
     ]
 elif merge_mode == 4:
     # most extreme case where all categories and background processes are flattened
     flat_cats = ['tt_ggH_rhorho', 'tt_ggH_rhoa11pr', 'tt_ggH_rhoa1', 'tt_ggH_pirho', 'tt_ggH_pia11pr', 'tt_ggH_a11pra1', 'tt_ggH_a1a1', 'tt_ggH_pipi', 'tt_ggH_pia1',
-                 'tt_qqH_rhorho', 'tt_qqH_rhoa11pr', 'tt_qqH_rhoa1', 'tt_qqH_pirho', 'tt_qqH_pia11pr', 'tt_qqH_a11pra1', 'tt_qqH_a1a1', 'tt_qqH_pipi', 'tt_qqH_pia1',
+                 'tt_VBF_rhorho', 'tt_VBF_rhoa11pr', 'tt_VBF_rhoa1', 'tt_VBF_pirho', 'tt_VBF_pia11pr', 'tt_VBF_a11pra1', 'tt_VBF_a1a1', 'tt_VBF_pipi', 'tt_VBF_pia1',
                  'mt_higgs_murho_mTLt65', 'mt_higgs_mua11pr_mTLt65', 'mt_higgs_mupi_mTLt65', 'mt_higgs_mua1_mTLt65',
                  'et_higgs_erho_mTLt65', 'et_higgs_ea11pr_mTLt65', 'et_higgs_epi_mTLt65', 'et_higgs_ea1_mTLt65'
     ]
@@ -160,10 +150,14 @@ else:
 ## Populating Observation, Process and Systematic entries in the harvester instance
 
 for chn in chans:
-    if Run2: filename = '%s/htt_%s.inputs-sm-13TeV.root' % (input_folder,chn)
+    # if Run2: filename = '%s/htt_%s.inputs-sm-13TeV.root' % (input_folder,chn)
     # elif chn == 'tt': filename = '%s/added_histo-mergeXbins.root' % (input_folder)
-    #elif chn == 'mt': filename = '%s/mt_2022_2023_merged-mergeXbins.root' % (input_folder)
-    else: filename = '%s/added_histo.root' % (input_folder)
+    # elif chn == 'mt': filename = '%s/mt_2022_2023_merged-mergeXbins.root' % (input_folder)
+    # else: filename = '%s/added_histo.root' % (input_folder)
+    if merge_mode == 0:
+        filename = f'{input_folder}/added_histo.root'
+    elif merge_mode == 1:
+        filename = f'{input_folder}/added_histo-mergeXbins.root'
     print (">>>   file %s" % (filename))
     cb.cp().channel([chn]).backgrounds().process([]).era(['13p6TeV']).ExtractShapes(filename, "$BIN/$PROCESS", "$BIN/$PROCESS_$SYSTEMATIC") # add data shapes
     if merge_mode == 0: 

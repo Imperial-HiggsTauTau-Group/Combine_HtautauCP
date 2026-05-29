@@ -32,10 +32,16 @@ def main():
     args = parser.parse_args()
 
     if args.symmetrise:
-        subprocess.run([
-            "python3", "scripts/convertCards.py",
-            "-f", f"{args.input}/added_histo.root"
-        ], check=True)
+        if not args.qqH:
+            subprocess.run([
+                "python3", "scripts/convertCards.py",
+                "-f", f"{args.input}/added_histo.root"
+            ], check=True)
+        else:
+            subprocess.run([
+                "python3", "scripts/convertCards_qqH.py",
+                "-f", f"{args.input}/added_histo.root"
+            ], check=True)
         update_config(args.input, args.output, merge_mode=1)
     else:
         update_config(args.input, args.output, merge_mode=0)

@@ -1,4 +1,4 @@
-input_folder: /vols/cms/dmw25/TIDAL/Draw/plots/tauID_studies_2024/Combined
-output_folder: outputs/datacards/setting_up_2024/NewBDT
+input_folder: /vols/cms/dmw25/TIDAL/Draw/plots/tauID_studies_2024/PNet_4_Class/Combined
+output_folder: outputs/datacards/qqH_studies/LateRun3/2024_PNet
 channels: tt
 merge_mode: 1
