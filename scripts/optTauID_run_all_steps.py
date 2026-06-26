@@ -22,7 +22,7 @@ def update_harvest_config(output, channel="tt"):
     cfg = os.path.normpath(cfg)
     content = (
         f'input_folder: "{DATACARD_BASE}/{output}"\n'
-        f'output_folder: "output_26June_OptTauID/{output}"\n'
+        f'output_folder: "output_26June_OptTauID_{channel}/{output}"\n'
         f'channels: "{channel}"\n'
         f'merge_mode: 1\n'
     )
@@ -48,7 +48,7 @@ def main():
     run(
         f"combineTool.py -m 125 -M T2W"
         f" -P CombineHarvester.Combine_HtautauCP.CPMixtureDecays:CPMixtureDecays"
-        f" -i output_26June_OptTauID/{output}/{channel}"
+        f" -i output_26June_OptTauID_{channel}/{output}/{channel}"
         f" -o ws.root --parallel 8"
     )
 
@@ -56,8 +56,8 @@ def main():
         f"combineTool.py -m 125 -M MultiDimFit"
         f" --setParameters muV=1,alpha=0,muggH=1,mutautau=1"
         f" --setParameterRanges alpha=-90,90"
-        f" --points 21 --redefineSignalPOIs alpha"
-        f" -d output_26June_OptTauID/{output}/{channel}/ws.root"
+        f" --points 100 --redefineSignalPOIs alpha"
+        f" -d output_26June_OptTauID_{channel}/{output}/{channel}/ws.root"
         f" --algo grid -t -1 --there -n .alphaEXPECTED --alignEdges 1"
         f" --cminDefaultMinimizerStrategy=0 --cminDefaultMinimizerTolerance=0.1"
         f" --cminFallbackAlgo Minuit2,Migrad,0:1"
@@ -68,9 +68,9 @@ def main():
 
     run(
         f"python3 scripts/plot1DScan.py"
-        f" --main=output_26June_OptTauID/{output}/{channel}/higgsCombine.alphaEXPECTED.MultiDimFit.mH125.root"
+        f" --main=output_26June_OptTauID_{channel}/{output}/{channel}/higgsCombine.alphaEXPECTED.MultiDimFit.mH125.root"
         f" --POI=alpha"
-        f" --output=output_26June_OptTauID/{output}/{channel}/alpha_{channel}_EXPECTED"
+        f" --output=output_26June_OptTauID_{channel}/{output}/{channel}/alpha_{channel}_EXPECTED"
         f" --no-numbers --no-box --x-min=-90 --x-max=90 --y-max=9"
     )
 
