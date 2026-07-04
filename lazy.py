@@ -26,7 +26,7 @@ def main():
     parser.add_argument("--alpha", action='store_true', help="Run alpha scan")
     parser.add_argument("--muvsmu", action='store_true', help="Run mu ggH vs mu V scan")
     parser.add_argument("--qqH", action='store_true', help="Run 2 signal category datacard harvesting")
-    parser.add_argument("--lumi", default=None, help="Luminosity to use in datacards (e.g. 138.0)")
+    parser.add_argument("--lumi", default=None, help="Luminosity to use in plot labels")
     parser.add_argument("--channel", required=False, help="Channel to determine label if not in output name")
     parser.add_argument("--symmetrise", action='store_true', help="Produces symmetrised templates")
     args = parser.parse_args()
@@ -79,7 +79,7 @@ def main():
             "-M", "MultiDimFit",
             "--setParameters", "muV=1,alpha=0,muggH=1,mutautau=1",
             "--setParameterRanges", "alpha=-90,90",
-            "--points", "21",
+            "--points", "41",
             "--redefineSignalPOIs", "alpha",
             "-d", f"{args.output}/{sub_dir}/ws.root",
             "--algo", "grid",
@@ -99,7 +99,7 @@ def main():
             "--no-box",
             "--x-min=-90",
             "--x-max=90",
-            "--y-max=10"
+            "--y-max=20"
         ]
 
         if args.lumi:
