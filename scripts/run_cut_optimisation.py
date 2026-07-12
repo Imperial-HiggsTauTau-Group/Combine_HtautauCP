@@ -1,0 +1,150 @@
+import subprocess
+import argparse
+import yaml
+import os
+
+BLUE = "\033[94m"
+END = "\033[0m"
+
+
+def get_args():
+    parser = argparse.ArgumentParser(description="Run cut optimisation")
+    parser.add_argument("--input", "-i", type=str, default="/vols/cms/dmw25/TIDAL/Draw/plots/cuts_for_LateRun3")
+    parser.add_argument("--output", "-o", type=str, default="output/datacards/cuts_for_LateRun3/full")
+    parser.add_argument("--step", type=str, required=True, help="'fit', 'plot', and then 'summarise'")
+    parser.add_argument("--channels", type=str, required=True, help="e.g. et,mt,tt")
+    args = parser.parse_args()
+    args.channels = args.channels.split(",")
+    return args
+
+
+def to_string(value: float) -> str:
+    return str(value).replace(".", "p")
+
+
+def update_config(input: str, output: str, channels: list[str]) -> None:
+    config = {
+        "input_folder": input,
+        "output_folder": output,
+        "channels": channels,
+        "merge_mode": 1
+    }
+    with open("configs/harvestDatacards.yml", "w") as f:
+        yaml.dump(config, f, sort_keys=False)
+
+
+def notify(message: str) -> None:
+    print("—" * 80)
+    print(f"{BLUE}{message}{END}")
+    print("—" * 80)
+
+
+def submit_fit_job(IPsig, Esplit, output_dir, ch, args):
+    input_dir = f"{args.input}/IPsig_{IPsig}_Esplit_{Esplit}/Combined"
+
+    # —————————————————————————————————————————————————————————————————
+    # Step 1: Symmetrise bins
+    # —————————————————————————————————————————————————————————————————
+    notify(f"Symmetrising bins for IPsig={IPsig}, Esplit={Esplit}...")
+    for channel in args.channels:
+        symmetrise_command = [
+        "python3", "scripts/convertCards.py",
+        "-f", f"{input_dir}/added_histo_{channel}.root", 
+        ]
+        subprocess.run(symmetrise_command, check=True)
+    
+    # —————————————————————————————————————————————————————————————————
+    # Step 2: Update config
+    # —————————————————————————————————————————————————————————————————
+    update_config(input_dir, output_dir, args.channels)
+
+    # —————————————————————————————————————————————————————————————————
+    # Step 3: Run harvestDatacards.py
+    # —————————————————————————————————————————————————————————————————
+    notify("Running harvestDatacards.py...")
+    harvest_command = [
+        "python3", "scripts/harvestDatacards.py",
+        "-c", "configs/harvestDatacards.yml"
+    ]
+    subprocess.run(harvest_command, check=True)
+
+    # —————————————————————————————————————————————————————————————————
+    # Step 4: Create workspaces
+    # —————————————————————————————————————————————————————————————————
+    notify("Creating workspaces...")
+    t2w_command = [
+        "combineTool.py",
+        "-m", "125",
+        "-M", "T2W",
+        "-P", "CombineHarvester.Combine_HtautauCP.CPMixtureDecays:CPMixtureDecays",
+        "-i", f"{output_dir}/{ch}",
+        "-o", "ws.root",
+        "--parallel", "8"
+    ]
+    subprocess.run(t2w_command, check=True)
+
+    # —————————————————————————————————————————————————————————————————
+    # Step 5: Submitting fit job to condor
+    # —————————————————————————————————————————————————————————————————
+    notify("Submitting fit job to condor...")
+    job_dir = f"{output_dir}/{ch}"
+    fit_command = [
+        "combineTool.py",
+        "-m", "125",
+        "-M", "MultiDimFit",
+        "--setParameters", "muV=1,alpha=0,muggH=1,mutautau=1",
+        "--setParameterRanges", "alpha=-90,90",
+        "--points", "51",
+        "--redefineSignalPOIs", "alpha",
+        "-d", f"{job_dir}/ws.root",
+        "--algo", "grid",
+        "-t", "-1",
+        "--there",
+        "-n", ".alpha",
+        "--alignEdges", "1",
+        "--job-mode", "condor",
+        "--task-name", f"IPsig_{IPsig}_Esplit_{Esplit}",
+        "--sub-opts", "+MaxRuntime=3600",
+    ]
+    subprocess.run(fit_command, check=True, cwd=job_dir)
+
+
+def plot_alpha_scan(output_dir, ch):
+    notify("Making plot of alpha scan...")
+    plot_command = [
+        "python3", "scripts/plot1DScan.py",
+        f"--main={output_dir}/{ch}/higgsCombine.alpha.MultiDimFit.mH125.root",
+        "--POI=alpha",
+        f"--output={output_dir}/alpha_{ch}",
+        "--no-numbers",
+        "--no-box",
+        "--x-min=-90",
+        "--x-max=90",
+        "--y-max=30"
+    ]
+    plot_output = subprocess.run(plot_command, capture_output=True, text=True)
+    with open(f"{output_dir}/RESULT.txt", "w") as f:
+        f.write(plot_output.stdout)
+
+
+def main(args):
+    IPsig_values = [1.25]
+    Esplit_values = [0.20]
+
+    for IPsig in IPsig_values:
+        for Esplit in Esplit_values:
+            IPsig, Esplit = to_string(IPsig), to_string(Esplit)
+            output_dir = f"{args.output}/IPsig_{IPsig}_Esplit_{Esplit}"
+            ch = "cmb" if len(args.channels) > 1 else args.channels[0]
+
+            if args.step == "fit":
+                submit_fit_job(IPsig, Esplit, output_dir, ch, args)
+
+            elif args.step == "plot":
+                plot_alpha_scan(output_dir, ch)
+                
+
+if __name__ == "__main__":
+    args = get_args()
+    main(args)
+
