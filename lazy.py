@@ -192,11 +192,17 @@ def main():
             shutil.move(path, os.path.join(multidimfit_dir, os.path.basename(path)))
 
         # Make plot of mu ggH vs mu V scan
-        subprocess.run([
+        command = [
             "python3", "scripts/plot_2D_scans.py",
             "--file", f"{args.output}/{sub_dir}/higgsCombine.muVsmu.MultiDimFit.mH125",
             "--muvsmu"
-        ], check=True)
+        ]
+
+        if args.lumi:
+            command.append("--lumi")
+            command.append(f"{args.lumi}")
+
+        subprocess.run(command, check=True)
 
 
 if __name__ == "__main__":

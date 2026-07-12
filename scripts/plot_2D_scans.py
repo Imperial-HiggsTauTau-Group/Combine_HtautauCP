@@ -27,6 +27,7 @@ def get_args():
     parser.add_argument('--kappas', action='store_true', help="2D kappa scan")
     parser.add_argument('--mutautau', action='store_true', help="Signal strength vs alpha")
     parser.add_argument('--muvsmu', action='store_true', help="mu ggH vs mu V")
+    parser.add_argument('--lumi', type=str, default='62.4', help="Luminosity for CMS label")
 
     return parser.parse_args()
 
@@ -90,7 +91,7 @@ def main(args):
         plt.tight_layout()
         ax.legend(handles=[sm_plot, bestfit_plot], loc='upper left')
         ax.yaxis.set_major_locator(ticker.MultipleLocator(1, offset=0.0))
-        hep.cms.label(ax=ax, label="Preliminary", data=True, lumi='200', com='13/13.6', fontsize=18)
+        hep.cms.label(ax=ax, label="Preliminary", data=True, lumi=args.lumi, com='13/13.6', fontsize=18)
         plt.savefig("kappas_interpolated.pdf")
 
     if args.mutautau:
@@ -135,7 +136,7 @@ def main(args):
         ax.set_xticks([-90, -45, 0, 45, 90])
         ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
         # ax.yaxis.set_major_locator(ticker.MultipleLocator(1, offset=0.0))
-        hep.cms.label(ax=ax, label="Preliminary", data=True, lumi='200', com='13/13.6', fontsize=18)
+        hep.cms.label(ax=ax, label="Preliminary", data=True, lumi=args.lumi, com='13/13.6', fontsize=18)
         plt.savefig("mutautauVsalpha.pdf")
 
     if args.muvsmu:
@@ -189,8 +190,8 @@ def main(args):
         # ax.set_xticks([-90, -45, 0, 45, 90])
         # ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
         # ax.yaxis.set_major_locator(ticker.MultipleLocator(1, offset=0.0))
-        hep.cms.label(ax=ax, label="Preliminary", data=True, lumi='62.4', com='13.6', fontsize=18)
-        # hep.cms.label(ax=ax, label="Preliminary", data=True, lumi='200', com='13 and 13.6', fontsize=18)
+        hep.cms.label(ax=ax, label="Preliminary", data=True, lumi=args.lumi, com='13.6', fontsize=18)
+        # hep.cms.label(ax=ax, label="Preliminary", data=True, lumi=args.lumi, com='13 and 13.6', fontsize=18)
         plt.savefig(os.path.join('/'.join(args.file.split('/')[:-1]), "muggHVsmuV_EXPECTED.pdf"))
 
 

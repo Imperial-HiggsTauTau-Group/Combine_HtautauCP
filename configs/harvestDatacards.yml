@@ -1,4 +1,4 @@
-input_folder: /vols/cms/dmw25/TIDAL/Draw/plots/cuts_for_LateRun3/DeepTau/SVsig_50p0/Combined
-output_folder: outputs/datacards/cuts_for_LateRun3/DeepTau/SVsig_50p0
+input_folder: /vols/cms/dmw25/TIDAL/Draw/plots/tauID_studies/PNet_4_Class/Combined
+output_folder: outputs/datacards/ESA_report/2024_4_class
 channels: tt
 merge_mode: 1
