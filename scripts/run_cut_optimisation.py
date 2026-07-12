@@ -1,3 +1,4 @@
+from prettytable import PrettyTable
 import subprocess
 import argparse
 import yaml
@@ -127,13 +128,36 @@ def plot_alpha_scan(output_dir, ch):
         f.write(plot_output.stdout)
 
 
+def extract_sensitivity(result_file):
+    notify(f"Extracting sensitivity from {result_file}...")
+    with open(result_file, "r") as f:
+        lines = f.readlines()
+
+    sig_lines = []
+    for line in lines:
+        if "max sigma" in line:
+            cp_odd_excl = float(line.split()[-1])
+        if "valid_lo" in line:
+            sig_lines.append(line)
+    one_sig_line = sig_lines[0]
+    one_sig_lo = -1 * float(one_sig_line.split()[1][:-1])
+    one_sig_hi = float(one_sig_line.split()[3][:-1])
+    alpha_err = (one_sig_hi + one_sig_lo) / 2
+    
+    return alpha_err, cp_odd_excl
+    
+
 def main(args):
     IPsig_values = [1.25]
     Esplit_values = [0.20]
 
-    for IPsig in IPsig_values:
-        for Esplit in Esplit_values:
-            IPsig, Esplit = to_string(IPsig), to_string(Esplit)
+    if args.step == "summarise":
+        table = PrettyTable()
+        table.field_names = ["cut_IPsig", "cut_Esplit", "alpha_err", "cp_odd_excl"]
+
+    for IPsig_ in IPsig_values:
+        for Esplit_ in Esplit_values:
+            IPsig, Esplit = to_string(IPsig_), to_string(Esplit_)
             output_dir = f"{args.output}/IPsig_{IPsig}_Esplit_{Esplit}"
             ch = "cmb" if len(args.channels) > 1 else args.channels[0]
 
@@ -142,7 +166,17 @@ def main(args):
 
             elif args.step == "plot":
                 plot_alpha_scan(output_dir, ch)
-                
+
+            elif args.step == "summarise":
+                result_file = f"{output_dir}/RESULT.txt"
+                alpha_err, cp_odd_excl = extract_sensitivity(result_file)
+                table.add_row([
+                    f"{IPsig_:.2f}", f"{Esplit_:.2f}", f"{alpha_err:.4f}", f"{cp_odd_excl:.4f}"
+                ])
+
+    if args.step == "summarise":
+        print(table)
+
 
 if __name__ == "__main__":
     args = get_args()
