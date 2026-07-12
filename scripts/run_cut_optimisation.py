@@ -2,7 +2,6 @@ from prettytable import PrettyTable
 import subprocess
 import argparse
 import yaml
-import os
 
 BLUE = "\033[94m"
 END = "\033[0m"
