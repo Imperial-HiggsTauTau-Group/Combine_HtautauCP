@@ -1,5 +1,5 @@
-input_folder: /vols/cms/dmw25/TIDAL/Draw/plots/cuts_for_LateRun3/IPsig_1p25_Esplit_0p2/Combined
-output_folder: output/datacards/cuts_for_LateRun3/full/IPsig_1p25_Esplit_0p2
+input_folder: /vols/cms/dmw25/TIDAL/Draw/plots/cuts_for_LateRun3_v2/IPsig_1p65_Esplit_0p2/Combined
+output_folder: output/datacards/cuts_for_LateRun3/full_v2/IPsig_1p65_Esplit_0p2
 channels:
 - et
 - mt

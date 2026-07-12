@@ -43,9 +43,9 @@ def notify(message: str) -> None:
 def submit_fit_job(IPsig, Esplit, output_dir, ch, args):
     input_dir = f"{args.input}/IPsig_{IPsig}_Esplit_{Esplit}/Combined"
 
-    # —————————————————————————————————————————————————————————————————
+    # —————————————————————————————————————————————————————————————————————————
     # Step 1: Symmetrise bins
-    # —————————————————————————————————————————————————————————————————
+    # —————————————————————————————————————————————————————————————————————————
     notify(f"Symmetrising bins for IPsig={IPsig}, Esplit={Esplit}...")
     for channel in args.channels:
         symmetrise_command = [
@@ -54,14 +54,14 @@ def submit_fit_job(IPsig, Esplit, output_dir, ch, args):
         ]
         subprocess.run(symmetrise_command, check=True)
     
-    # —————————————————————————————————————————————————————————————————
+    # —————————————————————————————————————————————————————————————————————————
     # Step 2: Update config
-    # —————————————————————————————————————————————————————————————————
+    # —————————————————————————————————————————————————————————————————————————
     update_config(input_dir, output_dir, args.channels)
 
-    # —————————————————————————————————————————————————————————————————
+    # —————————————————————————————————————————————————————————————————————————
     # Step 3: Run harvestDatacards.py
-    # —————————————————————————————————————————————————————————————————
+    # —————————————————————————————————————————————————————————————————————————
     notify("Running harvestDatacards.py...")
     harvest_command = [
         "python3", "scripts/harvestDatacards.py",
@@ -69,9 +69,9 @@ def submit_fit_job(IPsig, Esplit, output_dir, ch, args):
     ]
     subprocess.run(harvest_command, check=True)
 
-    # —————————————————————————————————————————————————————————————————
+    # —————————————————————————————————————————————————————————————————————————
     # Step 4: Create workspaces
-    # —————————————————————————————————————————————————————————————————
+    # —————————————————————————————————————————————————————————————————————————
     notify("Creating workspaces...")
     t2w_command = [
         "combineTool.py",
@@ -84,9 +84,9 @@ def submit_fit_job(IPsig, Esplit, output_dir, ch, args):
     ]
     subprocess.run(t2w_command, check=True)
 
-    # —————————————————————————————————————————————————————————————————
+    # —————————————————————————————————————————————————————————————————————————
     # Step 5: Submitting fit job to condor
-    # —————————————————————————————————————————————————————————————————
+    # —————————————————————————————————————————————————————————————————————————
     notify("Submitting fit job to condor...")
     job_dir = f"{output_dir}/{ch}"
     fit_command = [
@@ -126,6 +126,7 @@ def plot_alpha_scan(output_dir, ch):
     plot_output = subprocess.run(plot_command, capture_output=True, text=True)
     with open(f"{output_dir}/RESULT.txt", "w") as f:
         f.write(plot_output.stdout)
+    print(f"Output written to {output_dir}/RESULT.txt")
 
 
 def extract_sensitivity(result_file):
@@ -148,8 +149,8 @@ def extract_sensitivity(result_file):
     
 
 def main(args):
-    IPsig_values = [1.25]
-    Esplit_values = [0.20]
+    IPsig_values = [1.25, 1.35, 1.45, 1.55, 1.65]
+    Esplit_values = [0.1, 0.125, 0.15, 0.175, 0.2]
 
     if args.step == "summarise":
         table = PrettyTable()
